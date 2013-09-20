@@ -95,7 +95,8 @@ begin
       S := 'C' + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -119,7 +120,8 @@ begin
       S := 'E' + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -137,7 +139,8 @@ begin
       S := LexemCodeChar[ord(lcIdentifier)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -155,7 +158,8 @@ begin
       S := LexemCodeChar[ord(lcLabel)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -175,7 +179,7 @@ begin
         ViewGrid.RowCount := Succ(N);
         ViewGrid.Cells[0, N] := IntToStr(N);
         ViewGrid.Cells[1, N] := S;
-        ViewGrid.Cells[2, N] := Scaner.CodeTreeInfo(S);
+        ViewGrid.Cells[2, N] := Scaner.RCodeTree.Info(S);
         Inc(N);
         S := '';
       end
@@ -197,7 +201,8 @@ begin
       S := LexemCodeChar[ord(lcOperation)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -215,7 +220,8 @@ begin
       S := LexemCodeChar[ord(lcReservedWord)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -234,7 +240,8 @@ begin
       S := LexemCodeChar[ord(lcSeparator)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;
@@ -252,7 +259,8 @@ begin
       S := LexemCodeChar[ord(lcString)] + IntToStr(K);
       ViewGrid.Cells[0, K] := IntToStr(K);
       ViewGrid.Cells[1, K] := S;
-      ViewGrid.Cells[2, K] := Scaner.CodeTreeInfo(S);
+      ViewGrid.Cells[2, K] := Scaner.RCodeTree.Info(S);
+      ViewGrid.Cells[3, K] := IntToStr(Scaner.RCodeTree.Line(S));
     end;
     ShowModal;
   end;

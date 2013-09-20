@@ -6,10 +6,12 @@ type
   TLexemCode = (lcReservedWord, lcIdentifier, lcConstant, lcError, lcSeparator, lcLabel, lcOperation, lcUnknown,
     lcString);
 
+  TArrayOfInteger = array of integer;
+
   TLexem = record
     Name: String;
     Code: TLexemCode;
-    Line: Word;
+    Line: integer;
     CodeName: String;
   end;
 
@@ -22,16 +24,17 @@ type
 
   TSearchTree = class
     FRoot: PItem;
+
     constructor Create;
     procedure Clear;
     procedure Free;
     function Search(Key: TLexem): PItem;
     function Locate(Key: TLexem): PItem;
-    function NodesQuantity: Word;
+    function NodesQuantity: integer;
     function Info(CName: String): String;
-    function Line(CName: String): Integer;
+    function Line(CName: String): integer;
     function Code(Name: String): TLexemCode;
-    procedure ChangeCode(LName: String; LLine: Integer; NewCode: TLexemCode);
+    procedure ChangeCode(LName: String; LLine: integer; NewCode: TLexemCode);
   end;
 
 var
@@ -96,21 +99,18 @@ var
 
 begin
   IncKey(FRoot);
-  Search := Addr
+  Result := Addr;
 end;
 
 function TSearchTree.Locate(Key: TLexem): PItem;
-var
-  Item: PItem;
 begin
-  Item := FRoot;
-  while (Item <> nil) and (Item.Value.Name <> Key.Name) do
-    if Key.Name < Item.Value.Name then Item := Item.Left
-    else Item := Item.Right;
-  Locate := Item;
+  Result := FRoot;
+  while (Result <> nil) and (Result.Value.Name <> Key.Name) do
+    if Key.Name < Result.Value.Name then Result := Result.Left
+    else Result := Result.Right;
 end;
 
-function TSearchTree.NodesQuantity: Word;
+function TSearchTree.NodesQuantity: integer;
 var
   Count: Word;
 
@@ -126,7 +126,7 @@ var
 begin
   Count := 0;
   Quant(FRoot);
-  NodesQuantity := Count
+  Result := Count;
 end;
 
 function TSearchTree.Info(CName: String): String;
@@ -147,11 +147,11 @@ var
 begin
   Res := nil;
   UpDown(FRoot);
-  if Res <> nil then Info := Res.Value.Name
-  else Info := ''
+  if Res <> nil then Result := Res.Value.Name
+  else Result := ''
 end;
 
-function TSearchTree.Line(CName: String): Integer;
+function TSearchTree.Line(CName: String): integer;
 var
   Res: PItem;
 
@@ -168,8 +168,8 @@ var
 
 begin
   UpDown(FRoot);
-  if Res <> nil then Line := Res.Value.Line
-  else Line := -1;
+  if Res <> nil then Result := Res.Value.Line
+  else Result := -1;
 end;
 
 function TSearchTree.Code(Name: String): TLexemCode;
@@ -189,12 +189,12 @@ var
 
 begin
   Res := nil;
-  Code := lcUnknown;
+  Result := lcUnknown;
   UpDown(FRoot);
-  if Res <> nil then Code := Res.Value.Code
+  if Res <> nil then Result := Res.Value.Code
 end;
 
-procedure TSearchTree.ChangeCode(LName: String; LLine: Integer; NewCode: TLexemCode);
+procedure TSearchTree.ChangeCode(LName: String; LLine: integer; NewCode: TLexemCode);
 var
   Res: PItem;
 

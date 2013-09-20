@@ -27,7 +27,6 @@ type
     ROperators: set of char;
     RLangSymbols: set of char;
     RSeparators: set of char;
-    RCodeTree: TSearchTree;
     RCodedProgram: String;
     RLexems: TLexemsInfo;
     function PrepareLine(S: String): String;
@@ -40,9 +39,9 @@ type
     procedure ClearLexems;
     procedure Init;
   public
+    RCodeTree: TSearchTree;
     property CodedProgram: String read RCodedProgram;
     property Lexems: TLexemsInfo read RLexems;
-    function CodeTreeInfo(S: string): String;
     procedure AnalizeCode(Code: string);
     constructor Create(Code: string = '');
     procedure Free;
@@ -132,10 +131,14 @@ begin
   ClearLexems;
   CodeLines := TStringList.Create;
   CodeLines.Text := Code;
-  for I := 0 to CodeLines.Count - 1 do begin
+  for I := 0 to Pred(CodeLines.Count) do begin
     CurrLine := PrepareLine(CodeLines[I]);
+    // конец программы END.
     { if Pos('END.', CurrLine) = 1 then begin
       CurrLexem.Code := lcReservedWord;
+      Inc(RLexems.Constants);
+      CurrLexem.CodeName := LexemCodeChar[Ord(CurrLexem.Code)] + IntToStr(RLexems.Constants);
+      CurrLexem.Line := Succ(I);
       CurrLexem.Name := 'END';
       LocLexem := RCodeTree.Search(CurrLexem);
       RCodedProgram := RCodedProgram + LocLexem.Value.CodeName + ' ';
@@ -178,6 +181,7 @@ begin
           CurrLexem.Code := lcString;
           Inc(RLexems.Strings);
           CurrLexem.CodeName := LexemCodeChar[Ord(CurrLexem.Code)] + IntToStr(RLexems.Strings);
+          CurrLexem.Line := Succ(I);
           LocLexem := RCodeTree.Search(CurrLexem);
           RCodedProgram := RCodedProgram + LocLexem.Value.CodeName + ' ';
         end;
@@ -305,11 +309,6 @@ begin
     Total := 0;
     Strings := 0;
   end;
-end;
-
-function TScaner.CodeTreeInfo(S: string): String;
-begin
-  Exit(RCodeTree.Info(S));
 end;
 
 constructor TScaner.Create(Code: string = '');

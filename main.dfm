@@ -37,18 +37,25 @@ object FMain: TFMain
     Gutter.Font.Height = -11
     Gutter.Font.Name = 'Courier New'
     Gutter.Font.Style = []
+    Gutter.LeftOffset = 5
+    Gutter.ShowLineNumbers = True
     Highlighter = SynHighLighter
     Lines.Strings = (
       'program Test;'
       ''
-      'var s:string;'
+      'var s: String;'
+      '    a,b: Integer;'
       ''
       'begin'
       '   s := '#39'123'#39';'
       '   s := $01;'
       '   s := 123;'
       '   s := 5.013;'
-      'end.')
+      '   a := 10;'
+      '   b := b + a;'
+      '   writeln('#39'A: '#39',a );'
+      'end')
+    RightEdge = 120
     WantTabs = True
     FontSmoothing = fsmNone
   end
@@ -1349,6 +1356,7 @@ object FMain: TFMain
           477D417E75B03D060043F251B9724C11150000000049454E44AE426082A93096
           25}
       end>
+    MenuSupport.IcoLineSkin = 'ICOLINE'
     MenuSupport.ExtraLineFont.Charset = DEFAULT_CHARSET
     MenuSupport.ExtraLineFont.Color = clWindowText
     MenuSupport.ExtraLineFont.Height = -11

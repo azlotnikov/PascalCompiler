@@ -3,7 +3,7 @@ object FTable: TFTable
   Top = 0
   Caption = #1058#1072#1073#1083#1080#1094#1072
   ClientHeight = 313
-  ClientWidth = 358
+  ClientWidth = 464
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,17 +15,17 @@ object FTable: TFTable
   OnClose = FormClose
   OnCreate = FormCreate
   DesignSize = (
-    358
+    464
     313)
   PixelsPerInch = 96
   TextHeight = 13
   object ViewGrid: TStringGrid
     Left = 8
     Top = 8
-    Width = 342
+    Width = 448
     Height = 297
     Anchors = [akLeft, akTop, akRight, akBottom]
-    ColCount = 3
+    ColCount = 4
     DefaultColWidth = 105
     FixedCols = 0
     RowCount = 2

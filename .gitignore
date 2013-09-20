@@ -57,6 +57,7 @@ build/
 *_p.c
 *.ilk
 *.dcu
+*.identcache
 *.meta
 *.obj
 *.pch
