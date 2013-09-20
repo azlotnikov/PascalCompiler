@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.699,=C:\Users\root\Documents\RAD Studio\Projects\GridPaneView1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.881,=C:\Users\root\Documents\RAD Studio\Projects\Unit6.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.142,=C:\Users\root\Documents\RAD Studio\Projects\SplitPaneView1.pas</Transaction>
+    <Transaction>2013.09.20 22:32:34.991,=C:\Users\root\Documents\RAD Studio\Projects\Unit6.pas</Transaction>
+    <Transaction>2013.09.20 22:33:02.540,D:\ProjectsGit\PascalCompiler\PascalCompiler\main.dfm=C:\Users\root\Documents\RAD Studio\Projects\Unit6.dfm</Transaction>
+    <Transaction>2013.09.20 22:33:02.540,D:\ProjectsGit\PascalCompiler\PascalCompiler\main.pas=C:\Users\root\Documents\RAD Studio\Projects\Unit6.pas</Transaction>
+    <Transaction>2013.09.20 22:33:13.676,D:\ProjectsGit\PascalCompiler\PascalCompiler\PasCompiler.dproj=C:\Users\root\Documents\RAD Studio\Projects\Project6.dproj</Transaction>
+    <Transaction>2013.09.20 22:44:34.600,=D:\ProjectsGit\PascalCompiler\PascalCompiler\plScaner.pas</Transaction>
+    <Transaction>2013.09.20 22:44:34.610,=D:\ProjectsGit\PascalCompiler\PascalCompiler\plSearchTree.pas</Transaction>
+    <Transaction>2013.09.20 22:44:34.620,=D:\ProjectsGit\PascalCompiler\PascalCompiler\SynEditPopupEdit.pas</Transaction>
+    <Transaction>2013.09.20 22:48:28.732,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+    <Transaction>2013.09.20 22:49:32.770,D:\ProjectsGit\PascalCompiler\PascalCompiler\viewtable.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+    <Transaction>2013.09.20 22:49:32.770,D:\ProjectsGit\PascalCompiler\PascalCompiler\viewtable.dfm=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.dfm</Transaction>
+    <Transaction>2013.09.20 23:29:42.933,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+    <Transaction>2013.09.20 23:30:04.057,D:\ProjectsGit\PascalCompiler\PascalCompiler\viewcode.dfm=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.dfm</Transaction>
+    <Transaction>2013.09.20 23:30:04.057,D:\ProjectsGit\PascalCompiler\PascalCompiler\viewcode.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
