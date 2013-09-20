@@ -180,6 +180,7 @@ begin
         ViewGrid.Cells[0, N] := IntToStr(N);
         ViewGrid.Cells[1, N] := S;
         ViewGrid.Cells[2, N] := Scaner.RCodeTree.Info(S);
+        ViewGrid.Cells[3, N] := IntToStr(Scaner.RCodeTree.Line(S));
         Inc(N);
         S := '';
       end

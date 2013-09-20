@@ -198,7 +198,7 @@ begin
           // Лексема раньше не встречалась
           LocLexem := RCodeTree.Locate(CurrLexem);
           if LocLexem = nil then begin
-            CurrLexem.Line := Succ(I);
+            // CurrLexem.Line := Succ(I);
             if IsReservedWord(CurrLexem.Name) and ErrorLex then begin
               CurrLexem.Code := lcReservedWord;
               Inc(RLexems.Words);
@@ -269,6 +269,7 @@ begin
           if (IsOperation(CurrLexem.Name)) and (LocLexem = nil) then begin
             CurrLexem.Code := lcOperation;
             Inc(RLexems.Operations);
+            CurrLexem.Line := Succ(I);
             CurrLexem.CodeName := LexemCodeChar[Ord(CurrLexem.Code)] + IntToStr(RLexems.Operations);
             LocLexem := RCodeTree.Search(CurrLexem);
           end;
@@ -276,6 +277,7 @@ begin
           if (CurrChar in RSeparators) and (LocLexem = nil) then begin
             CurrLexem.Code := lcSeparator;
             Inc(RLexems.Separators);
+            CurrLexem.Line := Succ(I);
             CurrLexem.CodeName := LexemCodeChar[Ord(CurrLexem.Code)] + IntToStr(RLexems.Separators);
             LocLexem := RCodeTree.Search(CurrLexem);
           end;
