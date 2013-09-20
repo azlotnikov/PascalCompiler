@@ -198,7 +198,7 @@ begin
           // Лексема раньше не встречалась
           LocLexem := RCodeTree.Locate(CurrLexem);
           if LocLexem = nil then begin
-            // CurrLexem.Line := Succ(I);
+            CurrLexem.Line := Succ(I);
             if IsReservedWord(CurrLexem.Name) and ErrorLex then begin
               CurrLexem.Code := lcReservedWord;
               Inc(RLexems.Words);

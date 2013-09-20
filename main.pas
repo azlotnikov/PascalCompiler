@@ -45,6 +45,7 @@ type
     MM_Errors: TMenuItem;
     MM_Strings: TMenuItem;
     Skin: TsSkinManager;
+    MM_Exit: TMenuItem;
     procedure MM_DoAnalizeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure MM_LexemsCodeTableClick(Sender: TObject);
@@ -57,6 +58,7 @@ type
     procedure MM_OperationsClick(Sender: TObject);
     procedure MM_ErrorsClick(Sender: TObject);
     procedure MM_StringsClick(Sender: TObject);
+    procedure MM_ExitClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -125,6 +127,11 @@ begin
     end;
     ShowModal;
   end;
+end;
+
+procedure TFMain.MM_ExitClick(Sender: TObject);
+begin
+  Halt;
 end;
 
 procedure TFMain.MM_IdentificatorsClick(Sender: TObject);

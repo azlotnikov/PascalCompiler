@@ -80,6 +80,10 @@ object FMain: TFMain
     Top = 16
     object MM_Menu: TMenuItem
       Caption = #1052#1077#1085#1102
+      object MM_Exit: TMenuItem
+        Caption = #1042#1099#1093#1086#1076
+        OnClick = MM_ExitClick
+      end
     end
     object MM_Analize: TMenuItem
       Caption = #1040#1085#1072#1083#1080#1079' '#1050#1086#1076#1072
