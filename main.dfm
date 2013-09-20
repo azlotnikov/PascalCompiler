@@ -1,7 +1,7 @@
 object FMain: TFMain
   Left = 0
   Top = 0
-  Caption = 'Pascal Lexer'
+  Caption = 'Pascal Lexer [  https://github.com/ZRazor/PascalCompiler  ]'
   ClientHeight = 372
   ClientWidth = 652
   Color = clBtnFace
@@ -12,6 +12,7 @@ object FMain: TFMain
   Font.Style = []
   Menu = MM
   OldCreateOrder = False
+  Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
     652
