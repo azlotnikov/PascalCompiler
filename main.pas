@@ -21,7 +21,8 @@ uses
   viewtable,
   viewcode,
   plSearchTree,
-  plScaner;
+  plScaner,
+  sSkinManager;
 
 type
   TFMain = class(TForm)
@@ -43,6 +44,7 @@ type
     MM_Operations: TMenuItem;
     MM_Errors: TMenuItem;
     MM_Strings: TMenuItem;
+    Skin: TsSkinManager;
     procedure MM_DoAnalizeClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure MM_LexemsCodeTableClick(Sender: TObject);
