@@ -370,6 +370,11 @@ begin
         exit;
       end;
 
+      if (CurLexem.Value = ':') and not(RSourceCode[I][j] in ROperators) then begin
+        AssignLex(lcSeparator, Succ(I), j);
+        exit;
+      end;
+
       if inOperation and not(RSourceCode[I][j] in ROperators) then begin
         DoChecks;
         exit;

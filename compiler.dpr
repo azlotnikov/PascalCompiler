@@ -61,23 +61,32 @@ begin
 end;
 
 begin
+  SetConsoleTitle(PChar('PasCompiler [ https://github.com/ZRazor/PascalCompiler ]'));
+  DefColor;
+  Writeln('Write "exit" to close program or "%filename%" to pars file.');
   Scan := TPasScaner.Create;
   while True do begin
     DefColor;
     Readln(c);
+    if c = 'exit' then Halt(0);
     CleanSrc;
+    if not FileExists(c) then begin
+      Write('File not found: ');
+      SpecColor;
+      Writeln(c);
+      Continue;
+    end;
     write('File: ');
     GreenColor;
     Writeln(c);
     DefColor;
-    Writeln('+-----------------------------------------------------------------+');
+    Writeln('+------------------+--------------------------------+------+------+');
     write('|');
     Write(' Code |':19);
     write(' Value |':33);
     write(' Row |':7);
     Writeln(' Col |':7);
-    Writeln('+-----------------------------------------------------------------+');
-    if c = 'exit' then Halt(0);
+    Writeln('+------------------+--------------------------------+------+------+');
     Scan.LoadFromFile(c);
     while not Scan.EOF do begin
       Scan.Next;
@@ -98,8 +107,9 @@ begin
       Write(Scan.CurLexem.Col:4);
       DefColor;
       Writeln(' |');
+      Writeln('+------------------+--------------------------------+------+------+');
     end;
-    Writeln('+-----------------------------------------------------------------+');
+    //Writeln('+------------------+--------------------------------+------+------+');
   end;
   Readln;
 
