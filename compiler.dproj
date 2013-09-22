@@ -1,16 +1,21 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{014B5FE3-42EF-4A42-BC9D-48AD35188780}</ProjectGuid>
+        <ProjectGuid>{2CD234BB-2593-424F-AD34-23C6D64B53AF}</ProjectGuid>
         <ProjectVersion>14.4</ProjectVersion>
-        <FrameworkType>VCL</FrameworkType>
-        <MainSource>PasCompiler.dpr</MainSource>
+        <FrameworkType>None</FrameworkType>
+        <MainSource>compiler.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
-        <AppType>Application</AppType>
+        <AppType>Console</AppType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Base)'=='true') or '$(Base_OSX32)'!=''">
+        <Base_OSX32>true</Base_OSX32>
+        <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
@@ -39,9 +44,14 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Cfg_2)'=='true') or '$(Cfg_2_OSX32)'!=''">
+        <Cfg_2_OSX32>true</Cfg_2_OSX32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_E>false</DCC_E>
@@ -50,13 +60,15 @@
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
+        <DCC_UsePackage>IndyIPClient;DBXSqliteDriver;fmx;IndySystem;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;DataSnapProviderClient;DbxCommonDriver;dbxcds;DBXOracleDriver;CustomIPTransport;dsnap;IndyIPServer;fmxase;IndyCore;IndyIPCommon;inetdbxpress;bindcompfmx;rtl;dbrtl;DbxClientDriver;bindcomp;inetdb;xmlrtl;ibxpress;IndyProtocols;DBXMySQLDriver;bindengine;soaprtl;bindcompdbx;DBXInformixDriver;DBXFirebirdDriver;inet;fmxobj;DBXSybaseASADriver;fmxdae;dbexpress;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UsePackage>IndyIPClient;JvGlobus;JvMM;JvManagedThreads;DBXSqliteDriver;fmx;JvDlgs;IndySystem;JvCrypt;TeeDB;vclib;inetdbbde;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;JvNet;DataSnapProviderClient;JvDotNetCtrls;DBXSybaseASEDriver;DbxCommonDriver;vclimg;dbxcds;DatasnapConnectorsFreePascal;MetropolisUILiveTile;JvXPCtrls;vcldb;vcldsnap;DBXDb2Driver;DBXOracleDriver;CustomIPTransport;JvCore;vclribbon;dsnap;IndyIPServer;acntDelphiXE3_R;fmxase;vcl;IndyCore;IndyIPCommon;CloudService;DBXMSSQLDriver;FmxTeeUI;JvAppFrm;JvDB;JvRuntimeDesign;inetdbxpress;webdsnap;GR32_DSGN_RSXE2;JclDeveloperTools;GR32_RSXE2;JvDocking;adortl;JvWizards;JvHMI;bindcompfmx;JvBands;vcldbx;rtl;dbrtl;DbxClientDriver;bindcomp;inetdb;JvPluginSystem;Tee;JclContainers;DBXOdbcDriver;JvCmp;JvSystem;xmlrtl;svnui;ibxpress;JvTimeFramework;JvControls;IndyProtocols;DBXMySQLDriver;vclactnband;bindengine;soaprtl;bindcompdbx;FMXTee;TeeUI;bindcompvcl;JvStdCtrls;JvCustom;Jcl;vclie;JvJans;JvPageComps;JvPrintPreview;vcltouch;websnap;VclSmp;DBXInformixDriver;DataSnapConnectors;dsnapcon;DBXFirebirdDriver;inet;fmxobj;SynEdit_RXE3;JclVcl;JvPascalInterpreter;HTTPSender_Package;vclx;svn;DBXSybaseASADriver;fmxdae;bdertl;dbexpress;DataSnapIndy10ServerTransport;JvBDE;$(DCC_UsePackage)</DCC_UsePackage>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_UsePackage>IndyIPClient;JvGlobus;JvMM;JvManagedThreads;DBXSqliteDriver;fmx;JvDlgs;IndySystem;JvCrypt;TeeDB;vclib;inetdbbde;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;JvNet;DataSnapProviderClient;JvDotNetCtrls;DBXSybaseASEDriver;DbxCommonDriver;vclimg;dbxcds;DatasnapConnectorsFreePascal;MetropolisUILiveTile;JvXPCtrls;vcldb;vcldsnap;DBXDb2Driver;DBXOracleDriver;CustomIPTransport;JvCore;vclribbon;dsnap;IndyIPServer;acntDelphiXE3_R;fmxase;vcl;IndyCore;IndyIPCommon;CloudService;DBXMSSQLDriver;FmxTeeUI;JvAppFrm;JvDB;JvRuntimeDesign;inetdbxpress;webdsnap;GR32_DSGN_RSXE2;JclDeveloperTools;GR32_RSXE2;JvDocking;adortl;JvWizards;JvHMI;bindcompfmx;JvBands;vcldbx;rtl;dbrtl;DbxClientDriver;bindcomp;inetdb;JvPluginSystem;Tee;JclContainers;DBXOdbcDriver;JvCmp;JvSystem;xmlrtl;svnui;ibxpress;JvTimeFramework;JvControls;IndyProtocols;DBXMySQLDriver;vclactnband;bindengine;soaprtl;bindcompdbx;FMXTee;TeeUI;bindcompvcl;JvStdCtrls;JvCustom;Jcl;vclie;JvJans;JvPageComps;JvPrintPreview;vcltouch;websnap;VclSmp;DBXInformixDriver;DataSnapConnectors;dsnapcon;DBXFirebirdDriver;inet;fmxobj;SynEdit_RXE3;JclVcl;JvPascalInterpreter;HTTPSender_Package;vclx;svn;DBXSybaseASADriver;fmxdae;bdertl;dbexpress;DataSnapIndy10ServerTransport;JvBDE;$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>IndyIPClient;DBXSqliteDriver;fmx;IndySystem;TeeDB;vclib;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;DataSnapProviderClient;DBXSybaseASEDriver;DbxCommonDriver;vclimg;dbxcds;DatasnapConnectorsFreePascal;vcldb;vcldsnap;DBXDb2Driver;DBXOracleDriver;CustomIPTransport;dsnap;IndyIPServer;acntDelphiXE3_R;fmxase;vcl;IndyCore;IndyIPCommon;DBXMSSQLDriver;inetdbxpress;webdsnap;adortl;bindcompfmx;rtl;dbrtl;DbxClientDriver;bindcomp;inetdb;Tee;DBXOdbcDriver;xmlrtl;ibxpress;IndyProtocols;DBXMySQLDriver;vclactnband;bindengine;soaprtl;bindcompdbx;TeeUI;bindcompvcl;vclie;vcltouch;websnap;VclSmp;DBXInformixDriver;DataSnapConnectors;dsnapcon;DBXFirebirdDriver;inet;fmxobj;SynEdit_RXE3;vclx;DBXSybaseASADriver;fmxdae;dbexpress;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
@@ -78,25 +90,14 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>false</DCC_DebugInformation>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_OSX32)'!=''">
+        <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="main.pas">
-            <Form>FMain</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="plScaner.pas"/>
-        <DCCReference Include="plSearchTree.pas"/>
-        <DCCReference Include="SynEditPopupEdit.pas"/>
-        <DCCReference Include="viewtable.pas">
-            <Form>FTable</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="viewcode.pas">
-            <Form>FCode</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="pkScaner.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -150,11 +151,12 @@
                     <VersionInfoKeys Name="CFBundleExecutable"/>
                 </VersionInfoKeys>
                 <Source>
-                    <Source Name="MainSource">PasCompiler.dpr</Source>
+                    <Source Name="MainSource">compiler.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Deployment/>
             <Platforms>
+                <Platform value="OSX32">False</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
