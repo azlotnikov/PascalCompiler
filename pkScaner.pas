@@ -241,7 +241,7 @@ begin
   AddOperation('=');
   AddOperation('<>');
   // ----
-  RSeparators := [',', '(', ')', ';', '[', ']'];
+  RSeparators := [',', '(', ')', ';', '[', ']', ':'];
   ROperators := ['+', '-', '*', '/', '<', '>', '=', ':'];
   RLangSymbols := ['A' .. 'Z', '0' .. '9', '_'];
 end;
@@ -303,7 +303,6 @@ begin
       exit;
     end;
     if not(inMultiLineComment) and (RCurLexem.Value <> '') then begin
-      Inc(j);
       DoChecks;
       exit;
     end;
@@ -359,7 +358,7 @@ begin
         continue;
       end;
 
-      if (RCurLexem.Value = '') and (RSourceCode[I][j] in RSeparators) then begin
+      if (RCurLexem.Value = '') and (RSourceCode[I][j] in RSeparators) and (RSourceCode[I][j] <> ':') then begin
         RCurLexem.Value := RSourceCode[I][j];
         AssignLex(lcSeparator, Succ(I), Succ(j));
         exit;
@@ -397,9 +396,10 @@ begin
         exit;
       end;
 
-      if inMultiLineComment or inOneLineComment then RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
+      if inMultiLineComment or inOneLineComment or inString then RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
 
-      if not(inOneLineComment) and not(inMultiLineComment) and (not inString) and (RSourceCode[I][j] <> ' ') then begin
+      if not(inOneLineComment) and (not inMultiLineComment) and (not inString) and not(RSourceCode[I][j] in [' ', #9])
+      then begin
         if RCurLexem.Value = '' then begin
           CurRow := Succ(I);
           CurCol := j;
