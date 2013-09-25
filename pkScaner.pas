@@ -13,6 +13,8 @@ type
   TLexem = record
     Code: TLexemCode;
     Value: String;
+    ValueInt: longint;
+    ValueFloat: extended;
     Row: LongInt;
     Col: LongInt;
   end;
@@ -34,14 +36,16 @@ type
     CurRow: LongInt;
     CurCol: LongInt;
     RCurLexem: TLexem;
-    REOF: Boolean;
+    REndOfScan: Boolean;
+    RFile: TextFile;
     RLexemsCount: TLexemsCount;
     RReservedWords: array of string;
     ROperations: array of string;
     ROperators: set of char;
     RLangSymbols: set of char;
     RSeparators: set of char;
-    RSourceCode: TStringList;
+    RReadNextChar: boolean;
+    RCurChar: Char;
     procedure AddReservedWord(NewWord: String);
     procedure AddOperation(NewOpearation: string);
     procedure ClearLexemsCount;
@@ -52,7 +56,7 @@ type
     function IsOperation(S: string): Boolean;
     function IsConstant(S: string): Boolean;
   public
-    property EOF: Boolean read REOF;
+    property EndOfScan: Boolean read REndOfScan;
     property LexemsCount: TLexemsCount read RLexemsCount;
     property CurLexem: TLexem read RCurLexem;
     constructor Create; overload;
@@ -113,16 +117,15 @@ begin
 end;
 
 procedure TPasScaner.LoadFromFile(FileName: string);
-var
-  I: Integer;
 begin
   ClearLexemsCount;
   CurRow := 1;
   CurCol := 1;
   ClearCurLexem;
-  REOF := false;
-  RSourceCode.Clear;
-  RSourceCode.LoadFromFile(FileName);
+  RReadNextChar := true;
+  REndOfScan := false;
+  assign(RFile, FileName);
+  reset(RFile);
 end;
 
 procedure TPasScaner.AddOperation(NewOpearation: string);
@@ -174,13 +177,11 @@ end;
 
 procedure TPasScaner.Free;
 begin
-  RSourceCode.Free;
   Destroy;
 end;
 
 procedure TPasScaner.Init;
 begin
-  RSourceCode := TStringList.Create;
   AddReservedWord('ARRAY');
   AddReservedWord('BEGIN');
   AddReservedWord('CASE');
@@ -249,26 +250,32 @@ end;
 procedure TPasScaner.Next;
 var
   I, j: Integer;
-  CurLine: String;
   inString: Boolean;
   inOperation: Boolean;
   inOneLineComment, inMultiLineComment: Boolean;
   ErrorLex: Boolean;
+
   procedure AssignLex(LexCode: TLexemCode; newCurRow, newCurCol: Integer);
+  var ConvertError: Boolean;
   begin
+    ErrorLex := false;
     with RCurLexem do begin
+      if LexCode = lcConstant then begin
+        ConvertError := trystrtoint(Value, ValueInt);
+        ConvertError := ConvertError or (not trystrtofloat(Value, ValueFloat));
+        if not ConvertError then lexCode := lcError;
+      end;
       Code := LexCode;
       Col := CurCol;
       Row := CurRow;
     end;
     CurRow := newCurRow;
     CurCol := newCurCol;
-    ErrorLex := false;
   end;
 
   procedure AddAndInc;
   begin
-    RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
+    RCurLexem.Value := RCurLexem.Value + RCurChar;
     Inc(j);
   end;
 
@@ -276,147 +283,171 @@ var
   begin
     ErrorLex := True;
 
-    if ErrorLex and (IsOperation(RCurLexem.Value)) then AssignLex(lcOperation, Succ(I), j);
-    if ErrorLex and (IsReservedWord(RCurLexem.Value)) then AssignLex(lcReservedWord, Succ(I), j);
-    if ErrorLex and (IsIdentificator(RCurLexem.Value)) then AssignLex(lcIdentificator, Succ(I), j);
-    if ErrorLex and (IsConstant(RCurLexem.Value)) and (RSourceCode[I][j] = ':') then AssignLex(lcLabel, Succ(I), j);
-    if ErrorLex and (IsConstant(RCurLexem.Value)) then AssignLex(lcConstant, Succ(I), j);
+    if ErrorLex and (IsOperation(RCurLexem.Value)) then AssignLex(lcOperation, I, j);
+    if ErrorLex and (IsReservedWord(RCurLexem.Value)) then AssignLex(lcReservedWord, I, j);
+    if ErrorLex and (IsIdentificator(RCurLexem.Value)) then AssignLex(lcIdentificator, I, j);
+    if ErrorLex and (IsConstant(RCurLexem.Value)) and (RCurChar = ':') then AssignLex(lcLabel, I, j);
+    if ErrorLex and (IsConstant(RCurLexem.Value)) then AssignLex(lcConstant, I, j);
+    if ErrorLex and (Length(RCurLexem.Value) = 1) and (RCurLexem.Value[1] in RSeparators) then
+      AssignLex(lcSeparator, I, j);
+    if ErrorLex then AssignLex(lcError, I, j);
+  end;
 
-    if ErrorLex then AssignLex(lcError, Succ(I), j);
+  function DoOnNewLineChecks:boolean;
+  begin
+    Result := true;
+    if inOneLineComment then begin
+      AssignLex(lcComment, I, j);
+      exit(false);
+    end;
+    if inString then begin
+      AssignLex(lcError, I, j);
+      exit(false);
+    end;
+    if not(inMultiLineComment) and (RCurLexem.Value <> '') then begin
+      DoChecks;
+      exit(false);
+    end;
   end;
 
 begin
   ClearCurLexem;
   j := CurCol;
+  I := CurRow;
   inMultiLineComment := false;
   inOneLineComment := false;
   inString := false;
+  inOperation := false;
   ErrorLex := false;
-  for I := Pred(CurRow) to Pred(RSourceCode.Count) do begin
-    if I <> Pred(CurRow) then j := 1;
-    if inOneLineComment then begin
-      AssignLex(lcComment, Succ(I), j);
-      exit;
-    end;
-    if inString then begin
-      AssignLex(lcError, Succ(I), j);
-      exit;
-    end;
-    if not(inMultiLineComment) and (RCurLexem.Value <> '') then begin
-      DoChecks;
-      exit;
-    end;
+  while not EOF(RFile) do begin
+    if I <> CurRow then j := 1;
+    if not DoOnNewLineChecks then exit;
     inOneLineComment := false;
-    while j <= Length(RSourceCode[I]) do begin
-
+    while not EOln(RFile) do begin
+      if RReadNextChar then read(RFile, RCurChar);
+      RReadNextChar := true;
       if inOneLineComment then begin
         AddAndInc;
         continue;
       end;
 
-      if inMultiLineComment and (RSourceCode[I][j] <> '}') then begin
+      if inMultiLineComment and (RCurChar <> '}') then begin
         AddAndInc;
         continue;
       end;
 
-      if inMultiLineComment and (RSourceCode[I][j] = '}') then begin
-        AssignLex(lcComment, Succ(I), Succ(j));
+      if inMultiLineComment and (RCurChar = '}') then begin
+        AssignLex(lcComment, I, Succ(j));
         exit;
       end;
 
-      if inString and (RSourceCode[I][j] <> '''') then begin
+      if inString and (RCurChar <> '''') then begin
         AddAndInc;
         continue;
       end;
 
-      if inString and (RSourceCode[I][j] = '''') then begin
-        AssignLex(lcString, Succ(I), Succ(j));
+      if inString and (RCurChar = '''') then begin
+        AssignLex(lcString, I, Succ(j));
         exit;
       end;
 
-      if RSourceCode[I][j] = '{' then begin
+      if (RCurChar = '{') and (RCurLexem.Value = '') then begin
         inMultiLineComment := True;
         CurCol := j;
-        CurRow := Succ(I);
+        CurRow := I;
         Inc(j);
         continue;
       end;
 
-      if RSourceCode[I][j] = '''' then begin
-        inString := True;
-        CurCol := j;
-        CurRow := Succ(I);
-        Inc(j);
+      if (RCurChar = '/') and (Length(RCurLexem.Value) = 1) and
+      (RCurLexem.Value[1] = '/') then begin
+        inOneLineComment := true;
+        CurRow := I;
+        CurCol := Pred(j);
+        RCurLexem.Value := '';
+        inc(j);
         continue;
       end;
 
-      if (j < Length(RSourceCode[I])) and ((RSourceCode[I][j] + RSourceCode[I][j + 1]) = '//') then begin
-        inOneLineComment := True;
-        CurCol := j;
-        CurRow := Succ(I);
-        Inc(j, 2);
-        continue;
-      end;
-
-      if (RCurLexem.Value = '') and (RSourceCode[I][j] in RSeparators) and (RSourceCode[I][j] <> ':') then begin
-        RCurLexem.Value := RSourceCode[I][j];
-        AssignLex(lcSeparator, Succ(I), Succ(j));
-        exit;
-      end;
-
-      if (AnsiUpperCase(CurLexem.Value) = 'END') and (RSourceCode[I][j] = '.') then begin
-        AssignLex(lcReservedWord, Succ(I), Succ(j));
-        REOF := True;
-        exit;
-      end;
-
-      if (CurLexem.Value = ':') and not(RSourceCode[I][j] in ROperators) then begin
-        AssignLex(lcSeparator, Succ(I), j);
-        exit;
-      end;
-
-      if inOperation and not(RSourceCode[I][j] in ROperators) then begin
+      if inOperation and not (RCurChar in ROperators) then begin
+        RReadNextChar := false;
         DoChecks;
         exit;
       end;
 
-      if (RSourceCode[I][j] in ROperators) then begin
+      if RCurChar = '''' then begin
+        inString := True;
+        CurCol := j;
+        CurRow := I;
+        Inc(j);
+        continue;
+      end;
+
+      if (RCurLexem.Value = '') and (RCurChar in RSeparators) and (RCurChar <> ':') then begin
+        RCurLexem.Value := RCurChar;
+        AssignLex(lcSeparator, I, Succ(j));
+        exit;
+      end;
+
+      if (AnsiUpperCase(CurLexem.Value) = 'END') and (RCurChar = '.') then begin
+        AssignLex(lcReservedWord, I, Succ(j));
+        exit;
+      end;
+
+      if (RCurLexem.Value = ':') and not(RCurChar in ROperators) then begin
+        AssignLex(lcSeparator, I, j);
+        exit;
+      end;
+
+      if (RCurChar in ROperators) then begin
         if (not inOperation) and (RCurLexem.Value <> '') then begin
+          RReadNextChar := false;
           DoChecks;
           exit;
         end;
         inOperation := True;
       end
-      else inOperation := false;
+      else
+        inOperation := false;
 
       if inOperation and ((Length(RCurLexem.Value) = 1)) then begin
-        RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
+        if RCurChar = ':' then begin
+          RReadNextChar := false;
+          DoChecks;
+          exit;
+        end;
+        RCurLexem.Value := RCurLexem.Value + RCurChar;
         Inc(j);
         DoChecks;
         exit;
       end;
 
-      if (RCurLexem.Value <> '') and ((RSourceCode[I][j] in RSeparators) or (RSourceCode[I][j] = ' ')) then begin
+      if (RCurLexem.Value <> '') and ((RCurChar in RSeparators) or (RCurChar in ['{',' '])) then begin
+        RReadNextChar := false;
         DoChecks;
         exit;
       end;
 
-      if inMultiLineComment or inOneLineComment or inString then RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
+      if inMultiLineComment or inOneLineComment or inString then RCurLexem.Value := RCurLexem.Value + RCurChar;
 
-      if not(inOneLineComment) and (not inMultiLineComment) and (not inString) and not(RSourceCode[I][j] in [' ', #9])
+      if not(inOneLineComment) and (not inMultiLineComment) and (not inString) and not(RCurChar in [' ', #9])
       then begin
         if RCurLexem.Value = '' then begin
-          CurRow := Succ(I);
+          CurRow := I;
           CurCol := j;
         end;
-        RCurLexem.Value := RCurLexem.Value + RSourceCode[I][j];
+        RCurLexem.Value := RCurLexem.Value + RCurChar;
       end;
-
       Inc(j);
     end;
+    readln(RFile);
+    inc(i);
   end;
-  DoChecks;
-  REOF := True;
+  Dec(i);
+  if not RReadNextChar then RCurLexem.Value := RCurLexem.Value + RCurChar;
+  DoOnNewLineChecks;
+  REndOfScan := True;
+  closefile(RFile);
 end;
 
 end.

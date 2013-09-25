@@ -48,6 +48,7 @@ end;
 procedure CleanSrc;
 var
   Count, Res: Cardinal;
+  k: string;
   BuffInfo: TConsoleScreenBufferInfo;
   FOutHandle: THandle;
 begin
@@ -88,7 +89,7 @@ begin
     Writeln(' Col |':7);
     Writeln('+------------------+--------------------------------+------+------+');
     Scan.LoadFromFile(c);
-    while not Scan.EOF do begin
+    while not Scan.EndOfScan do begin
       Scan.Next;
       write('| ');
       GreenColor;
