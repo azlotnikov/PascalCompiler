@@ -9,7 +9,7 @@ uses
   pkScaner in 'pkScaner.pas';
 
 var
-  Scan: TPasScaner;
+  Scan: TPasScanner;
   LexemDefinitions: array [0 .. 9] of string = (
     'lcUnknown',
     'lcReservedWord',
@@ -65,7 +65,7 @@ begin
   SetConsoleTitle(PChar('PasCompiler [ https://github.com/ZRazor/PascalCompiler ]'));
   DefColor;
   Writeln('Write "exit" to close program or "%filename%" to pars file.');
-  Scan := TPasScaner.Create;
+  Scan := TPasScanner.Create;
   while True do begin
     DefColor;
     Readln(c);
