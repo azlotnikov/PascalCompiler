@@ -9,15 +9,15 @@ uses
 
 type
   TLexemCode = (lcUnknown, lcReservedWord, lcIdentificator, lcConstant, lcError, lcSeparator, lcLabel, lcOperation,
-    lcString, lcComment);
+    lcChar, lcString, lcComment);
 
-  TScannerState = (ssError, ssInComment, ssInString, ssInOperation);
+  TScannerState = (ssNone, ssInComment, ssInString, ssInOperation);
 
   TLexem = record
     Code: TLexemCode;
     Value: String;
-    ValueInt: integer;
-    ValueFloat: extended;
+    ValueInt: Integer;
+    ValueFloat: Extended;
     Row: Integer;
     Col: Integer;
   end;
@@ -31,80 +31,77 @@ type
     RFile: TextFile;
     RReservedWords: TList<String>;
     ROperations: TList<String>;
-    ROperators: set of char;
-    RLangSymbols: set of char;
-    RSeparators: set of char;
-    RSkipSymbols: set of char;
-    RReadNextChar: boolean;
+    ROperators: set of Char;
+    RLangSymbols: set of Char;
+    RSeparators: set of Char;
+    RSkipSymbols: set of Char;
+    RReadNextChar: Boolean;
     RCurChar: Char;
     procedure Init;
     procedure ClearCurLexem;
     function IsIdentificator(S: String): Boolean;
-    function IsReservedWord(S: string): Boolean;
-    function IsOperation(S: string): Boolean;
-    function IsConstant(S: string): Boolean;
+    function IsReservedWord(S: String): Boolean;
+    function IsOperation(S: String): Boolean;
+    function IsConstant(S: String): Boolean;
   public
     property EndOfScan: Boolean read REndOfScan;
     property CurLexem: TLexem read RCurLexem;
     constructor Create; overload;
-    constructor Create(FileName: string); overload;
-    procedure LoadFromFile(FileName: string);
-    procedure Free;
+    constructor Create(FileName: String); overload;
+    procedure LoadFromFile(FileName: String);
+    destructor Free;
     procedure Next;
+    function NextAndGet: TLexem;
   end;
 
 implementation
 
 { TPasScaner }
 
-function TPasScanner.IsConstant(S: string): Boolean;
+function TPasScanner.IsConstant(S: String): Boolean;
 var
-  I, t: Integer;
+  i, t: Integer;
   F: Boolean;
 begin
   if Length(S) = 0 then exit(false);
   Result := True;
   t := 0;
-  if (S[1] = '$' ) and (Length(S) > 1) then t := 1;
-  for I := 1 + t to Length(S) do
-    if (S[I] in ['.', '0' .. '9']) then begin
-      if (t = 1) and (S[I] = '.') then exit(false);
-      if (S[I] = '.') and ((I = Length(S)) or (I = 1)) then exit(false);
+  if (S[1] = '$') and (Length(S) > 1) then t := 1;
+  for i := 1 + t to Length(S) do
+    if (S[i] in ['.', '0' .. '9']) then begin
+      if (t = 1) and (S[i] = '.') then exit(false);
+      if (S[i] = '.') and ((i = Length(S)) or (i = 1)) then exit(false);
     end
     else exit(false);
 end;
 
 function TPasScanner.IsIdentificator(S: String): Boolean;
 var
-  I: Integer;
+  i: Integer;
 begin
   if Length(S) = 0 then exit(false);
   Result := True;
   if not(S[1] in ['A' .. 'Z', 'a' .. 'z']) or (IsOperation(S)) then exit(false);
-  for I := 2 to Length(S) do
-    if not(S[I] in ['0' .. '9', 'A' .. 'Z', 'a' .. 'z']) then exit(false);
+  for i := 2 to Length(S) do
+    if not(S[i] in ['0' .. '9', 'A' .. 'Z', 'a' .. 'z']) then exit(false);
 end;
 
-function TPasScanner.IsOperation(S: string): Boolean;
-var
-  t:integer;
+function TPasScanner.IsOperation(S: String): Boolean;
 begin
-  Exit(ROperations.BinarySearch(S, T));
+  exit(ROperations.Contains(AnsiUpperCase(S)));
 end;
 
-function TPasScanner.IsReservedWord(S: string): Boolean;
-var
-  t:integer;
+function TPasScanner.IsReservedWord(S: String): Boolean;
 begin
-  Exit(RReservedWords.BinarySearch(S, T));
+  exit(RReservedWords.Contains(AnsiUpperCase(S)));
 end;
 
-procedure TPasScanner.LoadFromFile(FileName: string);
+procedure TPasScanner.LoadFromFile(FileName: String);
 begin
   CurRow := 1;
   CurCol := 1;
   ClearCurLexem;
-  RReadNextChar := true;
+  RReadNextChar := True;
   REndOfScan := false;
   assign(RFile, FileName);
   reset(RFile);
@@ -120,7 +117,7 @@ begin
   end;
 end;
 
-constructor TPasScanner.Create(FileName: string);
+constructor TPasScanner.Create(FileName: String);
 begin
   Create;
   LoadFromFile(FileName);
@@ -131,63 +128,70 @@ begin
   Init;
 end;
 
-procedure TPasScanner.Free;
+destructor TPasScanner.Free;
 begin
-  Destroy;
+  RReservedWords.Free;
+  ROperations.Free;
 end;
 
 procedure TPasScanner.Init;
 begin
   RReservedWords := TList<String>.Create;
-  RReservedWords.Add('ARRAY');
-  RReservedWords.Add('BEGIN');
-  RReservedWords.Add('CASE');
-  RReservedWords.Add('CONST');
-  RReservedWords.Add('DO');
-  RReservedWords.Add('DOWNTO');
-  RReservedWords.Add('ELSE');
-  RReservedWords.Add('END');
-  RReservedWords.Add('FILE');
-  RReservedWords.Add('FOR');
-  RReservedWords.Add('FUNCTION');
-  RReservedWords.Add('GOTO');
-  RReservedWords.Add('IF');
-  RReservedWords.Add('IN');
-  RReservedWords.Add('LABEL');
-  RReservedWords.Add('NIL');
-  RReservedWords.Add('OF');
-  RReservedWords.Add('PROCEDURE');
-  RReservedWords.Add('PROGRAM');
-  RReservedWords.Add('RECORD');
-  RReservedWords.Add('REPEAT');
-  RReservedWords.Add('SET');
-  RReservedWords.Add('THEN');
-  RReservedWords.Add('TO');
-  RReservedWords.Add('TYPE');
-  RReservedWords.Add('UNTIL');
-  RReservedWords.Add('VAR');
-  RReservedWords.Add('WHILE');
-  RReservedWords.Add('WITH');
+  with RReservedWords do begin
+    Add('ARRAY');
+    Add('BEGIN');
+    Add('CASE');
+    Add('CONST');
+    Add('DO');
+    Add('DOWNTO');
+    Add('ELSE');
+    Add('END');
+    Add('FILE');
+    Add('FOR');
+    Add('FUNCTION');
+    Add('GOTO');
+    Add('IF');
+    Add('IN');
+    Add('LABEL');
+    Add('NIL');
+    Add('OF');
+    Add('PROCEDURE');
+    Add('PROGRAM');
+    Add('RECORD');
+    Add('REPEAT');
+    Add('SET');
+    Add('THEN');
+    Add('TO');
+    Add('TYPE');
+    Add('UNTIL');
+    Add('VAR');
+    Add('WHILE');
+    Add('WITH');
+  end;
   // ----
   ROperations := TList<String>.Create;
-  ROperations.Add('+');
-  ROperations.Add('-');
-  ROperations.Add('*');
-  ROperations.Add('/');
-  ROperations.Add('<');
-  ROperations.Add('>');
-  ROperations.Add('<=');
-  ROperations.Add('>=');
-  ROperations.Add(':=');
-  ROperations.Add('=');
-  ROperations.Add('XOR');
-  ROperations.Add('NOT');
-  ROperations.Add('AND');
-  ROperations.Add('OR');
-  ROperations.Add('NOT');
-  ROperations.Add('DIV');
-  ROperations.Add('MOD');
-
+  with ROperations do begin
+    Add('+');
+    Add('-');
+    Add('*');
+    Add('/');
+    Add('<');
+    Add('>');
+    Add('<=');
+    Add('>=');
+    Add(':=');
+    Add('=');
+    Add('<>');
+    Add('XOR');
+    Add('NOT');
+    Add('AND');
+    Add('OR');
+    Add('NOT');
+    Add('DIV');
+    Add('MOD');
+    Add('SHL');
+    Add('SHR');
+  end;
   // ----
   RSeparators := [',', '(', ')', ';', '[', ']', ':'];
   ROperators := ['+', '-', '*', '/', '<', '>', '=', ':'];
@@ -197,18 +201,14 @@ end;
 
 procedure TPasScanner.Next;
 var
-  I, j: Integer;
+  i, j: Integer;
   State: TScannerState;
 
   procedure AssignLex(LexCode: TLexemCode; newCurRow, newCurCol: Integer);
-  var ConvertError: Boolean;
   begin
     with RCurLexem do begin
-      if LexCode = lcConstant then begin
-        ConvertError := trystrtoint(Value, ValueInt);
-        ConvertError := ConvertError or (not trystrtofloat(Value, ValueFloat));
-        if not ConvertError then lexCode := lcError;
-      end;
+      if LexCode = lcConstant then
+        if not(trystrtoint(Value, ValueInt) or (not trystrtofloat(Value, ValueFloat))) then LexCode := lcError;
       Code := LexCode;
       Col := CurCol;
       Row := CurRow;
@@ -217,32 +217,32 @@ var
     CurCol := newCurCol;
   end;
 
-  procedure DoChecks(i, j: integer);
+  procedure DoChecks(i, j: Integer);
   begin
-    if (IsOperation(RCurLexem.Value)) then AssignLex(lcOperation, I, j)
-    else if (IsReservedWord(RCurLexem.Value)) then AssignLex(lcReservedWord, I, j)
-    else if (IsIdentificator(RCurLexem.Value)) then AssignLex(lcIdentificator, I, j)
-    else if (IsConstant(RCurLexem.Value)) and (RCurChar = ':') then AssignLex(lcLabel, I, j)
-    else if (IsConstant(RCurLexem.Value)) then AssignLex(lcConstant, I, j)
-    else if (Length(RCurLexem.Value) = 1) and (RCurLexem.Value[1] in RSeparators) then AssignLex(lcSeparator, I, j)
-    else AssignLex(lcError, I, j);
+    if (IsOperation(RCurLexem.Value)) then AssignLex(lcOperation, i, j)
+    else if (IsReservedWord(RCurLexem.Value)) then AssignLex(lcReservedWord, i, j)
+    else if (IsIdentificator(RCurLexem.Value)) then AssignLex(lcIdentificator, i, j)
+    else if (IsConstant(RCurLexem.Value)) and (RCurChar = ':') then AssignLex(lcLabel, i, j)
+    else if (IsConstant(RCurLexem.Value)) then AssignLex(lcConstant, i, j)
+    else if (Length(RCurLexem.Value) = 1) and (RCurLexem.Value[1] in RSeparators) then AssignLex(lcSeparator, i, j)
+    else AssignLex(lcError, i, j);
   end;
 
 begin
   ClearCurLexem;
   j := CurCol;
-  I := CurRow;
-  State := ssError;
+  i := CurRow;
+  State := ssNone;
   while not EOF(RFile) do begin
-    if I <> CurRow then j := 1;
+    if i <> CurRow then j := 1;
     if RCurLexem.Value <> '' then begin
       DoChecks(i, j);
-      RReadNextChar := true;
+      RReadNextChar := True;
       exit;
     end;
     while not EOln(RFile) do begin
       if RReadNextChar then read(RFile, RCurChar);
-      RReadNextChar := true;
+      RReadNextChar := True;
       if (RCurChar = '{') and (State <> ssInComment) then begin
         State := ssInComment;
         Inc(j);
@@ -250,27 +250,27 @@ begin
       end;
 
       if (RCurChar = '}') and (State = ssInComment) then begin
-        State := ssError;
+        State := ssNone;
         Inc(j);
         continue;
       end;
 
       if (State = ssInComment) then begin
-        inc(j);
+        Inc(j);
         continue;
       end;
 
       if (RCurChar = '''') and (State <> ssInString) then begin
         State := ssInString;
-        inc(j);
+        Inc(j);
         continue;
       end;
 
-      if (RCurChar = '''') and (State = ssInString) and
-        ((RCurLexem.Value = '') or ((RCurLexem.Value[Length(RCurLexem.Value)] = '''') and (RCurChar <> ''''))) then begin
-        if (RCurLexem.Value <> '') and (RCurLexem.Value[Length(RCurLexem.Value)] = '''') then
-          Delete(RCurLexem.Value, length(RCurLexem.Value), 1);
-        AssignLex(lcString, i, succ(j));
+      // тут строки...
+
+      if (AnsiUpperCase(CurLexem.Value) = 'END') and (RCurChar = '.') then begin
+        AssignLex(lcReservedWord, i, Succ(j));
+        RReadNextChar := false;
         exit;
       end;
 
@@ -279,26 +279,43 @@ begin
         break;
       end;
 
-      if (RCurChar in RSeparators) and (RCurLexem.Value = '') then begin
-        RCurLexem.Value := RCurChar;
-        AssignLex(lcSeparator, i , j);
-        exit;
-      end;
-
-      if (RCurChar in RSeparators) or ((RCurLexem.Value <> '') and (RCurChar in RSkipSymbols)) then begin
+      if (State = ssInOperation) and not(RCurChar in ROperators) then begin
         DoChecks(i, j);
         RReadNextChar := false;
         exit;
       end;
 
+      if (RCurChar in RSeparators) and (RCurLexem.Value = '') and (RCurChar <> ':') then begin
+        RCurLexem.Value := RCurChar;
+        AssignLex(lcSeparator, i, j);
+        exit;
+      end;
+
+      if (State <> ssInOperation) and (RCurLexem.Value <> '') and (RCurChar in RSeparators + ROperators + RSkipSymbols)
+      then begin
+        DoChecks(i, j);
+        RReadNextChar := false;
+        exit;
+      end;
+
+      if (RCurChar in ROperators) then State := ssInOperation
+      else State := ssNone;
+
       if not(RCurChar in RSkipSymbols) then RCurLexem.Value := RCurLexem.Value + RCurChar;
+
       Inc(j);
     end;
     readln(RFile);
-    inc(i);
+    Inc(i);
   end;
   REndOfScan := True;
   closefile(RFile);
+end;
+
+function TPasScanner.NextAndGet: TLexem;
+begin
+  Next;
+  exit(RCurLexem);
 end;
 
 end.

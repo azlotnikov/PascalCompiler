@@ -8,6 +8,13 @@ uses
   Winapi.Windows,
   pkScaner in 'pkScaner.pas';
 
+const
+  COMPILE_VERSION = '0.2';
+
+  CONSOLE_DEFAULT_COLOR = FOREGROUND_GREEN + FOREGROUND_Blue;
+  CONSOLE_GREEN_COLOR = FOREGROUND_GREEN;
+  CONSOLE_PINK_COLOR = FOREGROUND_RED + FOREGROUND_Blue;
+
 var
   Scan: TPasScanner;
   LexemDefinitions: array [0 .. 9] of string = (
@@ -19,30 +26,24 @@ var
     'lcSeparator',
     'lcLabel',
     'lcOperation',
-    'lcString',
-    'lcComment'
+    'lcChar',
+    'lcString'
   );
 
-  c: string;
+  RCommand: string;
 
-procedure DefColor;
+procedure SetConsoleColor(NewColor: Integer);
 begin
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN + FOREGROUND_Blue);
+  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), NewColor);
 end;
 
-procedure SpecColor;
+procedure PrintInfo;
 begin
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED + FOREGROUND_Blue);
-end;
-
-procedure NumColor;
-begin
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
-end;
-
-procedure GreenColor;
-begin
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
+  SetConsoleColor(CONSOLE_PINK_COLOR);
+  Writeln;
+  Writeln('PascalCompiler v' + COMPILE_VERSION:50);
+  Writeln;
+  SetConsoleColor(CONSOLE_GREEN_COLOR);
 end;
 
 procedure CleanSrc;
@@ -62,56 +63,11 @@ begin
 end;
 
 begin
-  SetConsoleTitle(PChar('PasCompiler [ https://github.com/ZRazor/PascalCompiler ]'));
-  DefColor;
-  Writeln('Write "exit" to close program or "%filename%" to pars file.');
-  Scan := TPasScanner.Create;
-  while True do begin
-    DefColor;
-    Readln(c);
-    if c = 'exit' then Halt(0);
-    CleanSrc;
-    if not FileExists(c) then begin
-      Write('File not found: ');
-      SpecColor;
-      Writeln(c);
-      Continue;
-    end;
-    write('File: ');
-    GreenColor;
-    Writeln(c);
-    DefColor;
-    Writeln('+------------------+--------------------------------+------+------+');
-    write('|');
-    Write(' Code |':19);
-    write(' Value |':33);
-    write(' Row |':7);
-    Writeln(' Col |':7);
-    Writeln('+------------------+--------------------------------+------+------+');
-    Scan.LoadFromFile(c);
-    while not Scan.EndOfScan do begin
-      Scan.Next;
-      write('| ');
-      GreenColor;
-      write(LexemDefinitions[Ord(Scan.CurLexem.Code)]:16);
-      DefColor;
-      write(' | ');
-      SpecColor;
-      write(Scan.CurLexem.Value:30);
-      DefColor;
-      write(' | ');
-      NumColor;
-      write(Scan.CurLexem.Row:4);
-      DefColor;
-      write(' | ');
-      NumColor;
-      Write(Scan.CurLexem.Col:4);
-      DefColor;
-      Writeln(' |');
-      Writeln('+------------------+--------------------------------+------+------+');
-    end;
-    //Writeln('+------------------+--------------------------------+------+------+');
+  SetConsoleTitle(PChar('PascalCompiler v' + COMPILE_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
+  if ParamCount = 0 then begin
+    PrintInfo;
+    Readln;
+    halt;
   end;
-  Readln;
 
 end.
