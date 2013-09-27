@@ -6,10 +6,10 @@
 uses
   System.SysUtils,
   Winapi.Windows,
-  pkScaner in 'pkScaner.pas';
+  pkScanner in 'pkScanner.pas';
 
 const
-  COMPILE_VERSION = '0.2';
+  COMPILER_VERSION = '0.2';
 
   CONSOLE_DEFAULT_COLOR = FOREGROUND_GREEN + FOREGROUND_Blue;
   CONSOLE_GREEN_COLOR = FOREGROUND_GREEN;
@@ -17,20 +17,22 @@ const
 
 var
   Scan: TPasScanner;
-  LexemDefinitions: array [0 .. 9] of string = (
+  LexemDefinitions: array [0 .. 10] of string = (
     'lcUnknown',
     'lcReservedWord',
     'lcIdentificator',
     'lcConstant',
+    'lcInteger',
+    'lcFloat',
     'lcError',
     'lcSeparator',
-    'lcLabel',
     'lcOperation',
     'lcChar',
     'lcString'
   );
 
   RCommand: string;
+  FileOut: TextFile;
 
 procedure SetConsoleColor(NewColor: Integer);
 begin
@@ -39,11 +41,26 @@ end;
 
 procedure PrintInfo;
 begin
+  SetConsoleColor(CONSOLE_DEFAULT_COLOR);
+  Writeln('PascalCompiler v' + COMPILER_VERSION);
+  Writeln;
+  Writeln('Available Commands:');
+  Writeln;
   SetConsoleColor(CONSOLE_PINK_COLOR);
-  Writeln;
-  Writeln('PascalCompiler v' + COMPILE_VERSION:50);
-  Writeln;
+  Write('Scan file:    ');
   SetConsoleColor(CONSOLE_GREEN_COLOR);
+  Writeln('-s filename');
+  SetConsoleColor(CONSOLE_PINK_COLOR);
+  Write('Pars file:    ');
+  SetConsoleColor(CONSOLE_GREEN_COLOR);
+  Writeln('-p filename');
+  SetConsoleColor(CONSOLE_PINK_COLOR);
+  Write('Compile file: ');
+  SetConsoleColor(CONSOLE_GREEN_COLOR);
+  Writeln('-c filename');
+  SetConsoleColor(CONSOLE_DEFAULT_COLOR);
+  Writeln;
+  Writeln('Press ENTER to exit');
 end;
 
 procedure CleanSrc;
@@ -63,11 +80,29 @@ begin
 end;
 
 begin
-  SetConsoleTitle(PChar('PascalCompiler v' + COMPILE_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
-  if ParamCount = 0 then begin
+  SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
+  if ParamCount <> 2 then begin
     PrintInfo;
     Readln;
     halt;
+  end;
+
+  if ParamStr(1) = '-s' then begin
+    Scan := TPasScanner.Create;
+    Scan.LoadFromFile(ParamStr(2));
+    AssignFile(FileOut, ChangeFileExt(ParamStr(2), '.scan'));
+    Rewrite(FileOut);
+    while not Scan.EndOfScan do begin
+      Scan.Next;
+     // if Scan.CurLexem.Code <> lcUnknown then
+          Writeln(FileOut, Format('%s: %s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Value]));
+    end;
+    CloseFile(FileOut);
+    Scan.Free;
+  end;
+
+  if ParamStr(1) = '-p' then begin
+
   end;
 
 end.
