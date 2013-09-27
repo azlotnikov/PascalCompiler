@@ -266,6 +266,10 @@ begin
   end;
   while not EOF(RFile) do begin
     if i <> CurRow then j := 1;
+    if State = ssInString then begin
+      AssignLex(lcError, i, j);
+      Exit;
+    end;
     if RCurLexem.Value <> '' then begin
       DoChecks(i, j);
       RReadNextChar := true;
