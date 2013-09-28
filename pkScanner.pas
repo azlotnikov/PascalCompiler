@@ -11,7 +11,7 @@ type
   TLexemCode = (lcUnknown, lcReservedWord, lcIdentificator, lcConstant, lcInteger, lcFloat, lcError, lcSeparator,
     lcOperation, lcChar, lcString);
 
-  TScannerState = (ssNone, ssInComment, ssInString, ssInStringQuote, ssInOperation);
+  TScannerState = (ssNone, ssInComment, ssInCommentAndOperation, ssInString, ssInStringQuote, ssInOperation);
 
   TLexem = record
     Code: TLexemCode;
@@ -36,6 +36,7 @@ type
     RLangSymbols: set of Char;
     RSeparators: set of Char;
     RSkipSymbols: set of Char;
+    RPointersSymbols: set of Char;
     RReadNextChar: Boolean;
     RCurChar: Char;
     procedure Init;
@@ -196,6 +197,8 @@ begin
     Add(':=');
     Add('=');
     Add('<>');
+    Add('@');
+    Add('^');
     Add('XOR');
     Add('NOT');
     Add('AND');
@@ -209,6 +212,7 @@ begin
   // ----
   RSeparators := [',', '(', ')', ';', '[', ']', ':'];
   ROperators := ['+', '-', '*', '/', '<', '>', '=', ':'];
+  RPointersSymbols := ['@', '^'];
   RLangSymbols := ['A' .. 'Z', '0' .. '9', '_'];
   RSkipSymbols := [' ', #9];
 end;
@@ -278,19 +282,28 @@ begin
     while not EOln(RFile) do begin
       if RReadNextChar then read(RFile, RCurChar);
       RReadNextChar := true;
-      if (RCurChar = '{') and (State <> ssInComment) then begin
+      if (RCurChar = '''') and not(State in [ssInString, ssInStringQuote]) and
+        (RCurLexem.Value <> '') then begin
+        DoChecks(i, j);
+        RReadNextChar := false;
+        exit;
+      end;
+
+      if (RCurChar = '{') and not(State in [ssInComment, ssInCommentAndOperation]) then begin
+        if State = ssInOperation then State := ssInCommentAndOperation else
         State := ssInComment;
         Inc(j);
         continue;
       end;
 
-      if (RCurChar = '}') and (State = ssInComment) then begin
+      if (RCurChar = '}') and (State in [ssInComment, ssInCommentAndOperation]) then begin
+        if State = ssInCommentAndOperation then State := ssInOperation else
         State := ssNone;
         Inc(j);
         continue;
       end;
 
-      if (State = ssInComment) then begin
+      if (State in [ssInComment, ssInCommentAndOperation]) then begin
         Inc(j);
         continue;
       end;
@@ -309,6 +322,7 @@ begin
 
       if (State = ssInString) and (RCurChar = '''') then begin
         State := ssInStringQuote;
+        RReadNextChar := true;
         Inc(j);
         continue;
       end;
@@ -322,13 +336,20 @@ begin
         Exit;
       end;
 
+      if (RCurChar in RPointersSymbols) and (RCurLexem.Value = '') then begin
+        RCurLexem.Value := RCurChar;
+        AssignLex(lcOperation, i, succ(j));
+        exit;
+      end;
+
+
       if (RCurLexem.Value = '/') and (RCurChar = '/') then begin
         RCurLexem.Value := '';
         State := ssNone;
         break;
       end;
 
-      if (State = ssInOperation) and not(RCurChar in ROperators) then begin
+      if (State = ssInOperation) and (not(RCurChar in ROperators - ['/'])) then begin
         DoChecks(i, j);
         RReadNextChar := false;
         Exit;
@@ -341,7 +362,7 @@ begin
       end;
 
       if not(State in [ssInOperation, ssInString]) and (RCurLexem.Value <> '') and
-        (RCurChar in RSeparators + ROperators + RSkipSymbols) then begin
+        (RCurChar in RSeparators + ROperators + RSkipSymbols + RPointersSymbols + ['#']) then begin
         DoChecks(i, j);
         RReadNextChar := false;
         Exit;

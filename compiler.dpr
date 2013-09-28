@@ -31,7 +31,6 @@ var
     'lcString'
   );
 
-  RCommand: string;
   FileOut: TextFile;
 
 procedure SetConsoleColor(NewColor: Integer);
@@ -66,7 +65,6 @@ end;
 procedure CleanSrc;
 var
   Count, Res: Cardinal;
-  k: string;
   BuffInfo: TConsoleScreenBufferInfo;
   FOutHandle: THandle;
 begin
@@ -94,8 +92,9 @@ begin
     Rewrite(FileOut);
     while not Scan.EndOfScan do begin
       Scan.Next;
-     // if Scan.CurLexem.Code <> lcUnknown then
-          Writeln(FileOut, Format('%s: %s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Value]));
+      if Scan.CurLexem.Code <> lcUnknown then
+          Writeln(FileOut, Format('%20s'#9'%d'#9'%d'#9'%s',
+          [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,Scan.CurLexem.Col, Scan.CurLexem.Value]));
     end;
     CloseFile(FileOut);
     Scan.Free;
