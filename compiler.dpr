@@ -6,7 +6,9 @@
 uses
   System.SysUtils,
   Winapi.Windows,
-  pkScanner in 'pkScanner.pas';
+  pkScanner in 'pkScanner.pas',
+  pkParser in 'pkParser.pas',
+  pkTree in 'pkTree.pas';
 
 const
   COMPILER_VERSION = '0.2';
@@ -17,6 +19,7 @@ const
 
 var
   Scan: TPasScanner;
+  Pars: TParser;
   LexemDefinitions: array [0 .. 10] of string = (
     'lcUnknown',
     'lcReservedWord',
@@ -87,21 +90,23 @@ begin
 
   if ParamStr(1) = '-s' then begin
     Scan := TPasScanner.Create;
-    Scan.LoadFromFile(ParamStr(2));
+    Scan.ScanFile(ParamStr(2));
     AssignFile(FileOut, ChangeFileExt(ParamStr(2), '.scan'));
     Rewrite(FileOut);
     while not Scan.EndOfScan do begin
       Scan.Next;
-      if Scan.CurLexem.Code <> lcUnknown then
-          Writeln(FileOut, Format('%20s'#9'%d'#9'%d'#9'%s',
-          [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,Scan.CurLexem.Col, Scan.CurLexem.Value]));
+      // if Scan.CurLexem.Code <> lcUnknown then
+      Writeln(FileOut, Format('%20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
+        Scan.CurLexem.Col, Scan.CurLexem.Value]));
     end;
     CloseFile(FileOut);
     Scan.Free;
   end;
 
   if ParamStr(1) = '-p' then begin
-
+    Pars := TParser.Create;
+    Pars.ParsFile(ParamStr(2));
+    Readln;
   end;
 
 end.
