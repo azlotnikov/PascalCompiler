@@ -1,0 +1,1 @@
+for /L %%i in (0,1,4) do rename "test%%i.scan" "test%%i.ans"
