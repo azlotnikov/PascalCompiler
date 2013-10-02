@@ -28,7 +28,7 @@ type
   end;
 
 var
-  Scan: TPasScanner;
+  Scan: TScanner;
   Pars: TParser;
   Commands: TCommands;
   LexemDefinitions: array [0 .. 10] of string = (
@@ -130,12 +130,12 @@ begin
 
     if Commands.Command = ccScan then begin
 
-      Scan := TPasScanner.Create(Commands.Exceptions);
-      Scan.ScanFile(Commands.InputFile);
+      Scan := TScanner.Create(Commands.Exceptions);
+      Scan.StartFileScan(Commands.InputFile);
       if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
       while Scan.Next do begin
         Writeln(Format('%-20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
-          Scan.CurLexem.Col, Scan.CurLexem.Value]));
+          Scan.CurLexem.Col, Scan.CurLexem.ValueStr]));
       end;
 
       Scan.Free;

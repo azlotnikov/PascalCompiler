@@ -44,14 +44,6 @@ begin
   StrValue := AStrValue;
 end;
 
-{ TNode<NType> }
-
-constructor TNode<NType>.Create(AValue: NType; AStrValue: String; ARow, ACol: Integer; ALeft, ARight: TNode);
-begin
-  inherited Create(AStrValue, ARow, ACol, ALeft, ARight);
-  Value := AValue;
-end;
-
 procedure TNode.Print(Depth: Integer);
 var
   i: Integer;
@@ -60,6 +52,14 @@ begin
   for i := 1 to Depth do write(' ');
   writeln(StrValue);
   if Right <> nil then Right.Print(Depth + 2);
+end;
+
+{ TNode<NType> }
+
+constructor TNode<NType>.Create(AValue: NType; AStrValue: String; ARow, ACol: Integer; ALeft, ARight: TNode);
+begin
+  inherited Create(AStrValue, ARow, ACol, ALeft, ARight);
+  Value := AValue;
 end;
 
 end.

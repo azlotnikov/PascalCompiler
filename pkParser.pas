@@ -10,19 +10,25 @@ uses
 type
   TParser = class
   private
-    RScan: TPasScanner;
+    RExceptions: Boolean;
+    RScan: TScanner;
     function ParseTerm: TNode;
     function ParseFactor: TNode;
   public
     RRoot: TNode;
     function ParseExpression: TNode;
     procedure ParsFile(FileName: String);
-    constructor Create;
+    constructor Create(AExceptions: Boolean = False);
   end;
 
 implementation
 
-{ TParser }
+const
+  EXCEPTION_NO_LEXEM_AFTER = 'No lexem after';
+  EXCEPTION_NO_CLOSING_BRACKET = 'No closing bracket after';
+  EXCEPTION_UNSUPPORTED_LEXEM = 'This Lexem is unsupported. Yet';
+
+  { TParser }
 
 function TParser.ParseFactor: TNode;
 var
@@ -31,17 +37,22 @@ begin
   Result := nil;
   Lexem := RScan.CurLexem;
   case Lexem.Code of
-    lcIdentificator: Result := TIdentificatorNode.Create(Lexem.Value, Lexem.Value, Lexem.Row, Lexem.Col, nil, nil);
-    lcInteger: Result := TIntegerNode.Create(Lexem.ValueInt, Lexem.Value, Lexem.Row, Lexem.Col, nil, nil);
-    lcFloat: Result := TFloatNode.Create(Lexem.ValueFloat, Lexem.Value, Lexem.Row, Lexem.Col, nil, nil);
+    lcIdentificator: Result := TIdentificatorNode.Create(Lexem.ValueStr, Lexem.ValueStr, Lexem.Row, Lexem.Col, nil, nil);
+    lcInteger: Result := TIntegerNode.Create(Lexem.ValueInt, Lexem.ValueStr, Lexem.Row, Lexem.Col, nil, nil);
+    lcFloat: Result := TFloatNode.Create(Lexem.ValueFloat, Lexem.ValueStr, Lexem.Row, Lexem.Col, nil, nil);
     lcSeparator: begin
         if (Lexem.ValueSeparator = '(') then begin
-          if RScan.Next then Result := ParseExpression;
+          if RScan.Next then Result := ParseExpression
+          else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_LEXEM_AFTER, RScan.CurLexem);
+          if RScan.Next then begin
+            if (RScan.CurLexem.ValueSeparator <> ')') and RExceptions then
+                Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_CLOSING_BRACKET, RScan.CurLexem);
+          end
+          else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_LEXEM_AFTER, RScan.CurLexem);
         end;
       end;
     lcError:;
-  else
-
+  else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_UNSUPPORTED_LEXEM, RScan.CurLexem);
   end;
   RScan.Next;
 end;
@@ -54,20 +65,21 @@ begin
   Left := ParseFactor;
   Lexem := RScan.CurLexem;
   Result := Left;
-  if (Lexem.ValueOperation in [ptMulti, ptDiv, ptIntDiv, ptMode]) then begin
+  if (Lexem.ValueOperation in [ptMult, ptDiv, ptIntDiv, ptMod]) then begin
     if RScan.Next then
-        Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.Value, Lexem.Row, Lexem.Col, Left, ParseTerm);
+        Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.ValueStr, Lexem.Row, Lexem.Col, Left, ParseTerm);
   end;
 end;
 
-constructor TParser.Create;
+constructor TParser.Create(AExceptions: Boolean = False);
 begin
-  RScan := TPasScanner.Create;
+  RExceptions := AExceptions;
+  RScan := TScanner.Create(RExceptions);
 end;
 
 procedure TParser.ParsFile(FileName: String);
 begin
-  RScan.ScanFile(FileName);
+  RScan.StartFileScan(FileName);
   RScan.Next;
   RRoot := ParseExpression;
   RRoot.Print(0);
@@ -82,8 +94,8 @@ begin
   Lexem := RScan.CurLexem;
   Result := Left;
   if (Lexem.ValueOperation in [ptAdd, ptSub]) then begin
-    if not RScan.EndOfScan then RScan.Next;
-    Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.Value, Lexem.Row, Lexem.Col, Left, ParseExpression);
+    if RScan.Next then
+        Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.ValueStr, Lexem.Row, Lexem.Col, Left, ParseExpression);
   end;
 end;
 

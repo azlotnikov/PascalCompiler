@@ -12,12 +12,13 @@ type
 
   TScannerState = (ssNone, ssInComment, ssInString, ssInStringQuote, ssInOperation);
 
-  TOperationType = (ptAdd, ptSub, ptMulti, ptDiv, ptIntDiv, ptMode, { } ptNone);
+  TOperationType = (ptAdd, ptSub, ptMult, ptDiv, ptIntDiv, ptMod, ptLess, ptGreater, ptLessEq, ptGreaterEq, ptAssign,
+    ptEq, ptNotEq, { } ptNone);
   TReserwedWordType = (rwArray, { } rwNone);
 
   TLexem = record
     Code: TLexemCode;
-    Value: String;
+    ValueStr: String;
     ValueInt: Integer;
     ValueFloat: Extended;
     ValueChar: Char;
@@ -28,10 +29,10 @@ type
     Col: Integer;
   end;
 
-  TPasScanner = class
+  TScanner = class
   private
-    CurRow: LongInt;
-    CurCol: LongInt;
+    RCurRow: LongInt;
+    RCurCol: LongInt;
     RCurLexem: TLexem;
     REndOfScan: Boolean;
     RFile: TextFile;
@@ -56,17 +57,34 @@ type
     property EndOfScan: Boolean read REndOfScan;
     property CurLexem: TLexem read RCurLexem;
     constructor Create(AExceprtions: Boolean = true);
-    procedure ScanFile(FileName: String);
+    procedure StartFileScan(FileName: String);
     destructor Free;
     function Next: Boolean;
     function NextAndGet: TLexem;
   end;
 
+type
+  TSyntaxException = class(Exception)
+  public
+    constructor Create(AClassName, Msg: string; Lexem: TLexem);
+  end;
+
 implementation
+
+const
+  EXCEPTION_FORMAT = 'Exception in %s: %s (Row: %d; Col: %d; Value: %s)';
+  EXCEPTION_ERROR_LEXEM = 'Error Lexem';
+
+  { TSyntaxException }
+
+constructor TSyntaxException.Create(AClassName, Msg: string; Lexem: TLexem);
+begin
+  inherited Create(Format(EXCEPTION_FORMAT, [AClassName, Msg, Lexem.Row, Lexem.Col, Lexem.ValueStr]));
+end;
 
 { TPasScaner }
 
-function TPasScanner.IsChar(S: String): Boolean;
+function TScanner.IsChar(S: String): Boolean;
 var
   i: Integer;
 begin
@@ -77,7 +95,7 @@ begin
     if not(S[i] in ['0' .. '9']) then Exit(false);
 end;
 
-function TPasScanner.IsConstant(S: String): Boolean;
+function TScanner.IsConstant(S: String): Boolean;
 var
   i, t: Integer;
   F: Boolean;
@@ -95,7 +113,7 @@ begin
     else Exit(false);
 end;
 
-function TPasScanner.IsIdentificator(S: String): Boolean;
+function TScanner.IsIdentificator(S: String): Boolean;
 var
   i: Integer;
 begin
@@ -106,20 +124,20 @@ begin
     if not(S[i] in ['0' .. '9', 'A' .. 'Z', 'a' .. 'z']) then Exit(false);
 end;
 
-function TPasScanner.IsOperation(S: String): Boolean;
+function TScanner.IsOperation(S: String): Boolean;
 begin
   Exit(ROperations.Contains(AnsiUpperCase(S)));
 end;
 
-function TPasScanner.IsReservedWord(S: String): Boolean;
+function TScanner.IsReservedWord(S: String): Boolean;
 begin
   Exit(RReservedWords.Contains(AnsiUpperCase(S)));
 end;
 
-procedure TPasScanner.ScanFile(FileName: String);
+procedure TScanner.StartFileScan(FileName: String);
 begin
-  CurRow := 1;
-  CurCol := 1;
+  RCurRow := 1;
+  RCurCol := 1;
   ClearCurLexem;
   RReadNextChar := true;
   REndOfScan := false;
@@ -127,29 +145,29 @@ begin
   reset(RFile);
 end;
 
-procedure TPasScanner.ClearCurLexem;
+procedure TScanner.ClearCurLexem;
 begin
   with RCurLexem do begin
     Code := lcUnknown;
-    Value := '';
+    ValueStr := '';
     Row := -1;
     Col := -1;
   end;
 end;
 
-constructor TPasScanner.Create(AExceprtions: Boolean = true);
+constructor TScanner.Create(AExceprtions: Boolean = true);
 begin
   RExceptions := AExceprtions;
   Init;
 end;
 
-destructor TPasScanner.Free;
+destructor TScanner.Free;
 begin
   RReservedWords.Free;
   ROperations.Free;
 end;
 
-procedure TPasScanner.Init;
+procedure TScanner.Init;
 begin
   RReservedWords := TList<String>.Create;
   with RReservedWords do begin
@@ -164,7 +182,6 @@ begin
     Add('FILE');
     Add('FOR');
     Add('FUNCTION');
-    Add('GOTO');
     Add('IF');
     Add('IN');
     Add('LABEL');
@@ -217,7 +234,7 @@ begin
   RSkipSymbols := [' ', #9];
 end;
 
-function TPasScanner.Next: Boolean;
+function TScanner.Next: Boolean;
 var
   i, j: Integer;
   State, PreviousState: TScannerState;
@@ -226,45 +243,45 @@ var
   begin
     with RCurLexem do begin
       if LexCode = lcConstant then begin
-        if (trystrtoint(Value, ValueInt)) then LexCode := lcInteger
-        else if (not trystrtofloat(Value, ValueFloat)) then LexCode := lcFloat
+        if (trystrtoint(ValueStr, ValueInt)) then LexCode := lcInteger
+        else if (not trystrtofloat(ValueStr, ValueFloat)) then LexCode := lcFloat
         else LexCode := lcError;
       end;
       if (LexCode = lcChar) then
         try
-          ValueChar := chr(StrToInt(Copy(Value, 2, Length(Value) - 1)));
+          ValueChar := chr(StrToInt(Copy(ValueStr, 2, Length(ValueStr) - 1)));
         except
           LexCode := lcError;
         end;
-      if (LexCode = lcString) and (Length(Value) = 1) then begin
-        ValueChar := Value[1];
+      if (LexCode = lcString) and (Length(ValueStr) = 1) then begin
+        ValueChar := ValueStr[1];
         LexCode := lcChar;
       end;
-      if (LexCode = lcOperation) then ValueOperation := TOperationType(ROperations.IndexOf(Value))
+      if (LexCode = lcOperation) then ValueOperation := TOperationType(ROperations.IndexOf(ValueStr))
       else ValueOperation := ptNone;
-      if (LexCode = lcReservedWord) then ValueReserwedWord := TReserwedWordType(RReservedWords.IndexOf(Value))
+      if (LexCode = lcReservedWord) then ValueReserwedWord := TReserwedWordType(RReservedWords.IndexOf(ValueStr))
       else ValueReserwedWord := rwNone;
-      if (LexCode = lcSeparator) then ValueSeparator := Value[1]
+      if (LexCode = lcSeparator) then ValueSeparator := ValueStr[1]
       else ValueSeparator := #0;
       Code := LexCode;
-      Col := CurCol;
-      Row := CurRow;
-      CurRow := newCurRow;
-      CurCol := newCurCol;
+      Col := RCurCol;
+      Row := RCurRow;
+      RCurRow := newCurRow;
+      RCurCol := newCurCol;
       if (LexCode = lcError) and (RExceptions) then
-          Raise Exception.Create(Format('%s: Error lexem (Row: %d; Col: %d; Value: %s)',
-          [ClassName, CurRow, CurCol, Value]));
+          Raise TSyntaxException.Create(ClassName, EXCEPTION_ERROR_LEXEM, RCurLexem);
     end;
   end;
 
   procedure DoChecks(i, j: Integer);
   begin
-    if (IsOperation(RCurLexem.Value)) then AssignLex(lcOperation, i, j)
-    else if (IsReservedWord(RCurLexem.Value)) then AssignLex(lcReservedWord, i, j)
-    else if (IsIdentificator(RCurLexem.Value)) then AssignLex(lcIdentificator, i, j)
-    else if (IsConstant(RCurLexem.Value)) then AssignLex(lcConstant, i, j)
-    else if (IsChar(RCurLexem.Value)) then AssignLex(lcChar, i, j)
-    else if (Length(RCurLexem.Value) = 1) and (RCurLexem.Value[1] in RSeparators) then AssignLex(lcSeparator, i, j)
+    if (IsOperation(RCurLexem.ValueStr)) then AssignLex(lcOperation, i, j)
+    else if (IsReservedWord(RCurLexem.ValueStr)) then AssignLex(lcReservedWord, i, j)
+    else if (IsIdentificator(RCurLexem.ValueStr)) then AssignLex(lcIdentificator, i, j)
+    else if (IsConstant(RCurLexem.ValueStr)) then AssignLex(lcConstant, i, j)
+    else if (IsChar(RCurLexem.ValueStr)) then AssignLex(lcChar, i, j)
+    else if (Length(RCurLexem.ValueStr) = 1) and (RCurLexem.ValueStr[1] in RSeparators) then
+        AssignLex(lcSeparator, i, j)
     else AssignLex(lcError, i, j);
   end;
 
@@ -272,21 +289,21 @@ begin
   if REndOfScan then Exit(false);
   Result := true;
   ClearCurLexem;
-  j := CurCol;
-  i := CurRow;
+  j := RCurCol;
+  i := RCurRow;
   State := ssNone;
   PreviousState := ssNone;
   if EOF(RFile) and (RReadNextChar = false) then begin
-    RCurLexem.Value := RCurChar;
+    RCurLexem.ValueStr := RCurChar;
     DoChecks(i, j);
   end;
   while not EOF(RFile) do begin
-    if i <> CurRow then j := 1;
+    if i <> RCurRow then j := 1;
     if State = ssInString then begin
       AssignLex(lcError, i, j);
       Exit;
     end;
-    if RCurLexem.Value <> '' then begin
+    if RCurLexem.ValueStr <> '' then begin
       DoChecks(i, j);
       RReadNextChar := true;
       Exit;
@@ -294,7 +311,7 @@ begin
     while not EOln(RFile) do begin
       if RReadNextChar then read(RFile, RCurChar);
       RReadNextChar := true;
-      if (RCurChar = '''') and not(State in [ssInString, ssInStringQuote]) and (RCurLexem.Value <> '') then begin
+      if (RCurChar = '''') and not(State in [ssInString, ssInStringQuote]) and (RCurLexem.ValueStr <> '') then begin
         DoChecks(i, j);
         RReadNextChar := false;
         Exit;
@@ -339,21 +356,21 @@ begin
 
       if (State = ssInStringQuote) and (RCurChar = '''') then State := ssInString;
 
-      if (AnsiUpperCase(CurLexem.Value) = 'END') and (RCurChar = '.') then begin
+      if (AnsiUpperCase(CurLexem.ValueStr) = 'END') and (RCurChar = '.') then begin
         AssignLex(lcReservedWord, i, Succ(j));
         RReadNextChar := false;
         REndOfScan := true;
         Exit;
       end;
 
-      if (RCurChar in RPointersSymbols) and (RCurLexem.Value = '') then begin
-        RCurLexem.Value := RCurChar;
+      if (RCurChar in RPointersSymbols) and (RCurLexem.ValueStr = '') then begin
+        RCurLexem.ValueStr := RCurChar;
         AssignLex(lcOperation, i, Succ(j));
         Exit;
       end;
 
-      if (RCurLexem.Value = '/') and (RCurChar = '/') then begin
-        RCurLexem.Value := '';
+      if (RCurLexem.ValueStr = '/') and (RCurChar = '/') then begin
+        RCurLexem.ValueStr := '';
         State := ssNone;
         break;
       end;
@@ -364,13 +381,13 @@ begin
         Exit;
       end;
 
-      if (RCurChar in RSeparators) and (RCurLexem.Value = '') and (RCurChar <> ':') then begin
-        RCurLexem.Value := RCurChar;
+      if (RCurChar in RSeparators) and (RCurLexem.ValueStr = '') and (RCurChar <> ':') then begin
+        RCurLexem.ValueStr := RCurChar;
         AssignLex(lcSeparator, i, j);
         Exit;
       end;
 
-      if not(State in [ssInOperation, ssInString]) and (RCurLexem.Value <> '') and
+      if not(State in [ssInOperation, ssInString]) and (RCurLexem.ValueStr <> '') and
         (RCurChar in RSeparators + ROperators + RSkipSymbols + RPointersSymbols + ['#']) then begin
         DoChecks(i, j);
         RReadNextChar := false;
@@ -382,7 +399,7 @@ begin
         else State := ssNone;
       end;
 
-      if not(RCurChar in RSkipSymbols) then RCurLexem.Value := RCurLexem.Value + RCurChar;
+      if not(RCurChar in RSkipSymbols) then RCurLexem.ValueStr := RCurLexem.ValueStr + RCurChar;
 
       Inc(j);
     end;
@@ -390,13 +407,13 @@ begin
     Inc(i);
   end;
   if State = ssInStringQuote then AssignLex(lcString, i, j)
-  else if RCurLexem.Value <> '' then DoChecks(i, j)
+  else if RCurLexem.ValueStr <> '' then DoChecks(i, j)
   else Result := false;
   REndOfScan := true;
   closefile(RFile);
 end;
 
-function TPasScanner.NextAndGet: TLexem;
+function TScanner.NextAndGet: TLexem;
 begin
   Next;
   Exit(RCurLexem);
