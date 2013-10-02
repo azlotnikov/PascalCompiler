@@ -57,7 +57,7 @@ type
     constructor Create;
     procedure ScanFile(FileName: String);
     destructor Free;
-    procedure Next;
+    function Next: Boolean;
     function NextAndGet: TLexem;
   end;
 
@@ -215,7 +215,7 @@ begin
   RSkipSymbols := [' ', #9];
 end;
 
-procedure TPasScanner.Next;
+function TPasScanner.Next: Boolean;
 var
   i, j: Integer;
   State, PreviousState: TScannerState;
@@ -264,6 +264,8 @@ var
   end;
 
 begin
+  if REndOfScan then Exit(false);
+  Result := true;
   ClearCurLexem;
   j := CurCol;
   i := CurRow;
@@ -383,7 +385,8 @@ begin
     Inc(i);
   end;
   if State = ssInStringQuote then AssignLex(lcString, i, j)
-  else if RCurLexem.Value <> '' then DoChecks(i, j);
+  else if RCurLexem.Value <> '' then DoChecks(i, j)
+  else Result := false;
   REndOfScan := true;
   closefile(RFile);
 end;

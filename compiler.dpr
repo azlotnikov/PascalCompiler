@@ -82,7 +82,7 @@ end;
 
 begin
   SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
-  if ParamCount <> 2 then begin
+  if ParamCount < 2 then begin
     PrintInfo;
     Readln;
     halt;
@@ -91,22 +91,19 @@ begin
   if ParamStr(1) = '-s' then begin
     Scan := TPasScanner.Create;
     Scan.ScanFile(ParamStr(2));
-    AssignFile(FileOut, ChangeFileExt(ParamStr(2), '.scan'));
-    Rewrite(FileOut);
-    while not Scan.EndOfScan do begin
-      Scan.Next;
-      // if Scan.CurLexem.Code <> lcUnknown then
-      Writeln(FileOut, Format('%20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
+    if ParamStr(3) <> '' then AssignFile(output, ParamStr(3));
+    while Scan.Next do begin
+      Writeln(Format('%20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
         Scan.CurLexem.Col, Scan.CurLexem.Value]));
     end;
-    CloseFile(FileOut);
     Scan.Free;
   end;
 
   if ParamStr(1) = '-p' then begin
     Pars := TParser.Create;
+    if ParamStr(3) <> '' then AssignFile(output, ParamStr(3));
     Pars.ParsFile(ParamStr(2));
-    Readln;
+    Pars.Free;
   end;
 
 end.

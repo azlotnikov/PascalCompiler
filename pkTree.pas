@@ -54,13 +54,11 @@ end;
 
 procedure TNode.Print(Depth: Integer);
 var
-  ws: String;
   i: Integer;
 begin
   if Left <> nil then Left.Print(Depth + 2);
-  ws := '';
-  for i := 1 to Depth do ws := ws + ' ';
-  writeln(ws, StrValue);
+  for i := 1 to Depth do write(' ');
+  writeln(StrValue);
   if Right <> nil then Right.Print(Depth + 2);
 end;
 
