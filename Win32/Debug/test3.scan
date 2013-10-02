@@ -1,25 +1,25 @@
-             lcError	1	1	0Abc
-         lcSeparator	1	5	;
-      lcReservedWord	1	5	proGram
-         lcSeparator	1	12	;
-     lcIdentificator	1	12	test0
-         lcSeparator	1	17	;
-     lcIdentificator	2	1	abs
-         lcSeparator	2	4	(
-         lcSeparator	2	4	)
-         lcSeparator	2	4	;
-     lcIdentificator	2	4	proc
-         lcSeparator	3	5	(
-         lcSeparator	3	5	[
-           lcInteger	3	5	13
-         lcSeparator	3	7	,
-           lcInteger	3	7	14
-         lcSeparator	3	9	]
-         lcSeparator	3	9	)
-         lcSeparator	3	9	;
-     lcIdentificator	3	9	proc
-         lcSeparator	4	5	(
-         lcOperation	4	5	@
-     lcIdentificator	4	6	g
-         lcSeparator	4	7	)
-         lcSeparator	4	7	;
+lcError             	1	1	0Abc
+lcSeparator         	1	5	;
+lcReservedWord      	1	5	proGram
+lcSeparator         	1	12	;
+lcIdentificator     	1	12	test0
+lcSeparator         	1	17	;
+lcIdentificator     	2	1	abs
+lcSeparator         	2	4	(
+lcSeparator         	2	4	)
+lcSeparator         	2	4	;
+lcIdentificator     	2	4	proc
+lcSeparator         	3	5	(
+lcSeparator         	3	5	[
+lcInteger           	3	5	13
+lcSeparator         	3	7	,
+lcInteger           	3	7	14
+lcSeparator         	3	9	]
+lcSeparator         	3	9	)
+lcSeparator         	3	9	;
+lcIdentificator     	3	9	proc
+lcSeparator         	4	5	(
+lcOperation         	4	5	@
+lcIdentificator     	4	6	g
+lcSeparator         	4	7	)
+lcSeparator         	4	7	;

@@ -1,8 +1,1 @@
-((()[];
-;;
-function();
-procedure ;
-program;
-end.
-op op some code;
-+ 10;
+program 1a;

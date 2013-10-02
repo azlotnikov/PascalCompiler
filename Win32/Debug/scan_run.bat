@@ -1,1 +1,1 @@
-for /L %%i in (0,1,4) do compiler -s "test%%i.pas" "test%%i.scan"
+for /L %%i in (0,1,4) do compiler /S "test%%i.pas" "test%%i.scan"

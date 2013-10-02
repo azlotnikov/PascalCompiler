@@ -11,15 +11,26 @@ uses
   pkTree in 'pkTree.pas';
 
 const
-  COMPILER_VERSION = '0.2';
+  COMPILER_VERSION = '0.3';
 
   CONSOLE_DEFAULT_COLOR = FOREGROUND_GREEN + FOREGROUND_Blue;
   CONSOLE_GREEN_COLOR = FOREGROUND_GREEN;
   CONSOLE_PINK_COLOR = FOREGROUND_RED + FOREGROUND_Blue;
 
+type
+  TCompilerCommand = (ccNone, ccScan, ccPars, ccCompile);
+
+  TCommands = record
+    Exceptions: Boolean;
+    InputFile: String;
+    OutPutFile: String;
+    Command: TCompilerCommand;
+  end;
+
 var
   Scan: TPasScanner;
   Pars: TParser;
+  Commands: TCommands;
   LexemDefinitions: array [0 .. 10] of string = (
     'lcUnknown',
     'lcReservedWord',
@@ -49,20 +60,22 @@ begin
   Writeln('Available Commands:');
   Writeln;
   SetConsoleColor(CONSOLE_PINK_COLOR);
-  Write('Scan file:    ');
+  Write('Scan file: ':20);
   SetConsoleColor(CONSOLE_GREEN_COLOR);
-  Writeln('-s filename');
+  Writeln('/S InputFile [OutputFile]');
   SetConsoleColor(CONSOLE_PINK_COLOR);
-  Write('Pars file:    ');
+  Write('Pars file: ':20);
   SetConsoleColor(CONSOLE_GREEN_COLOR);
-  Writeln('-p filename');
+  Writeln('/P InputFile [OutputFile]');
   SetConsoleColor(CONSOLE_PINK_COLOR);
-  Write('Compile file: ');
+  Write('Compile file: ':20);
   SetConsoleColor(CONSOLE_GREEN_COLOR);
-  Writeln('-c filename');
+  Writeln('/C InputFile');
+  SetConsoleColor(CONSOLE_PINK_COLOR);
+  Write('EnableExceptions: ':20);
+  SetConsoleColor(CONSOLE_GREEN_COLOR);
+  Writeln('/E');
   SetConsoleColor(CONSOLE_DEFAULT_COLOR);
-  Writeln;
-  Writeln('Press ENTER to exit');
 end;
 
 procedure CleanSrc;
@@ -80,30 +93,72 @@ begin
   SetConsoleCursorPosition(FOutHandle, BuffInfo.dwCursorPosition);
 end;
 
+procedure ReadCommands;
+var
+  i: Integer;
+  s: string;
 begin
-  SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
-  if ParamCount < 2 then begin
-    PrintInfo;
-    Readln;
-    halt;
-  end;
-
-  if ParamStr(1) = '-s' then begin
-    Scan := TPasScanner.Create;
-    Scan.ScanFile(ParamStr(2));
-    if ParamStr(3) <> '' then AssignFile(output, ParamStr(3));
-    while Scan.Next do begin
-      Writeln(Format('%20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
-        Scan.CurLexem.Col, Scan.CurLexem.Value]));
+  with Commands do begin
+    Command := ccNone;
+    InputFile := '';
+    OutPutFile := '';
+    for i := 1 to ParamCount do begin
+      s := AnsiUpperCase(ParamStr(i));
+      if (s[1] = '/') then begin
+        if s = '/S' then Command := ccScan;
+        if s = '/P' then Command := ccPars;
+        if s = '/C' then Command := ccCompile;
+        if s = '/E' then Exceptions := True;
+      end else begin
+        if InputFile = '' then InputFile := ParamStr(i)
+        else if OutPutFile = '' then OutPutFile := ParamStr(i);
+      end;
     end;
-    Scan.Free;
   end;
+end;
 
-  if ParamStr(1) = '-p' then begin
-    Pars := TParser.Create;
-    if ParamStr(3) <> '' then AssignFile(output, ParamStr(3));
-    Pars.ParsFile(ParamStr(2));
-    Pars.Free;
+begin
+  try
+    SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
+
+    ReadCommands;
+
+    if (Commands.Command = ccNone) or (Commands.InputFile = '') then begin
+      PrintInfo;
+      halt;
+    end;
+
+    if Commands.Command = ccScan then begin
+
+      Scan := TPasScanner.Create(Commands.Exceptions);
+      Scan.ScanFile(Commands.InputFile);
+      if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
+      while Scan.Next do begin
+        Writeln(Format('%-20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
+          Scan.CurLexem.Col, Scan.CurLexem.Value]));
+      end;
+
+      Scan.Free;
+      halt;
+    end;
+
+    if Commands.Command = ccPars then begin
+
+      Pars := TParser.Create;
+      if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
+      Pars.ParsFile(Commands.InputFile);
+
+      Pars.Free;
+      halt;
+    end;
+
+    PrintInfo;
+
+  except
+    on E: Exception do begin
+      AssignFile(output, '');
+      Writeln(E.Message);
+    end;
   end;
 
 end.

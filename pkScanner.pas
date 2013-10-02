@@ -43,6 +43,7 @@ type
     RSkipSymbols: set of Char;
     RPointersSymbols: set of Char;
     RReadNextChar: Boolean;
+    RExceptions: Boolean;
     RCurChar: Char;
     procedure Init;
     procedure ClearCurLexem;
@@ -54,7 +55,7 @@ type
   public
     property EndOfScan: Boolean read REndOfScan;
     property CurLexem: TLexem read RCurLexem;
-    constructor Create;
+    constructor Create(AExceprtions: Boolean = true);
     procedure ScanFile(FileName: String);
     destructor Free;
     function Next: Boolean;
@@ -136,8 +137,9 @@ begin
   end;
 end;
 
-constructor TPasScanner.Create;
+constructor TPasScanner.Create(AExceprtions: Boolean = true);
 begin
+  RExceptions := AExceprtions;
   Init;
 end;
 
@@ -247,9 +249,12 @@ var
       Code := LexCode;
       Col := CurCol;
       Row := CurRow;
+      CurRow := newCurRow;
+      CurCol := newCurCol;
+      if (LexCode = lcError) and (RExceptions) then
+          Raise Exception.Create(Format('%s: Error lexem (Row: %d; Col: %d; Value: %s)',
+          [ClassName, CurRow, CurCol, Value]));
     end;
-    CurRow := newCurRow;
-    CurCol := newCurCol;
   end;
 
   procedure DoChecks(i, j: Integer);

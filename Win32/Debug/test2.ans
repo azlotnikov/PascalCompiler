@@ -1,48 +1,48 @@
-         lcOperation	1	1	=
-         lcOperation	2	1	<=
-             lcError	3	1	=>
-         lcOperation	4	1	>=
-         lcSeparator	5	1	:
-         lcOperation	6	1	:=
-             lcError	7	1	<<
-             lcError	8	1	>>
-             lcError	9	1	==
-         lcOperation	10	1	*
-         lcOperation	11	1	/
-         lcOperation	12	1	@
-         lcOperation	12	2	^
-         lcOperation	13	2	@
-     lcIdentificator	14	2	p
-         lcSeparator	14	3	;
-         lcOperation	15	1	@
-     lcIdentificator	15	2	p
-         lcOperation	15	3	<=
-         lcOperation	15	5	^
-     lcIdentificator	15	6	g
-         lcSeparator	15	7	;
-     lcIdentificator	16	1	k
-         lcOperation	16	3	*
-           lcInteger	16	5	5
-         lcOperation	16	7	/
-     lcIdentificator	16	9	t
-         lcSeparator	16	11	(
-         lcSeparator	16	11	)
-         lcSeparator	16	11	;
-           lcInteger	16	12	10
-         lcOperation	17	3	/
-           lcInteger	17	4	6
-         lcOperation	17	6	=
-           lcInteger	17	7	2
-         lcSeparator	17	8	;
-           lcInteger	18	1	1
-         lcOperation	18	2	<=
-           lcInteger	18	5	50
-         lcSeparator	18	8	;
-     lcIdentificator	19	1	axorb
-         lcSeparator	19	6	;
-     lcIdentificator	20	1	axor
-     lcIdentificator	20	5	b
-         lcSeparator	20	7	;
-     lcIdentificator	21	1	a
-         lcOperation	21	2	xor
-     lcIdentificator	21	6	b
+lcOperation         	1	1	=
+lcOperation         	2	1	<=
+lcError             	3	1	=>
+lcOperation         	4	1	>=
+lcSeparator         	5	1	:
+lcOperation         	6	1	:=
+lcError             	7	1	<<
+lcError             	8	1	>>
+lcError             	9	1	==
+lcOperation         	10	1	*
+lcOperation         	11	1	/
+lcOperation         	12	1	@
+lcOperation         	12	2	^
+lcOperation         	13	2	@
+lcIdentificator     	14	2	p
+lcSeparator         	14	3	;
+lcOperation         	15	1	@
+lcIdentificator     	15	2	p
+lcOperation         	15	3	<=
+lcOperation         	15	5	^
+lcIdentificator     	15	6	g
+lcSeparator         	15	7	;
+lcIdentificator     	16	1	k
+lcOperation         	16	3	*
+lcInteger           	16	5	5
+lcOperation         	16	7	/
+lcIdentificator     	16	9	t
+lcSeparator         	16	11	(
+lcSeparator         	16	11	)
+lcSeparator         	16	11	;
+lcInteger           	16	12	10
+lcOperation         	17	3	/
+lcInteger           	17	4	6
+lcOperation         	17	6	=
+lcInteger           	17	7	2
+lcSeparator         	17	8	;
+lcInteger           	18	1	1
+lcOperation         	18	2	<=
+lcInteger           	18	5	50
+lcSeparator         	18	8	;
+lcIdentificator     	19	1	axorb
+lcSeparator         	19	6	;
+lcIdentificator     	20	1	axor
+lcIdentificator     	20	5	b
+lcSeparator         	20	7	;
+lcIdentificator     	21	1	a
+lcOperation         	21	2	xor
+lcIdentificator     	21	6	b

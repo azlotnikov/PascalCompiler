@@ -36,15 +36,14 @@ begin
     lcFloat: Result := TFloatNode.Create(Lexem.ValueFloat, Lexem.Value, Lexem.Row, Lexem.Col, nil, nil);
     lcSeparator: begin
         if (Lexem.ValueSeparator = '(') then begin
-          if not RScan.EndOfScan then RScan.Next;
-          Result := ParseExpression;
+          if RScan.Next then Result := ParseExpression;
         end;
       end;
     lcError:;
   else
 
   end;
-  if not RScan.EndOfScan then RScan.Next;
+  RScan.Next;
 end;
 
 function TParser.ParseTerm: TNode;
@@ -56,8 +55,8 @@ begin
   Lexem := RScan.CurLexem;
   Result := Left;
   if (Lexem.ValueOperation in [ptMulti, ptDiv, ptIntDiv, ptMode]) then begin
-    if not RScan.EndOfScan then RScan.Next;
-    Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.Value, Lexem.Row, Lexem.Col, Left, ParseTerm);
+    if RScan.Next then
+        Result := TOperationNode.Create(Lexem.ValueOperation, Lexem.Value, Lexem.Row, Lexem.Col, Left, ParseTerm);
   end;
 end;
 
