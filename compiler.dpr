@@ -11,7 +11,7 @@ uses
   pkTree in 'pkTree.pas';
 
 const
-  COMPILER_VERSION = '0.3';
+  COMPILER_VERSION = '0.4';
 
   CONSOLE_DEFAULT_COLOR = FOREGROUND_GREEN + FOREGROUND_Blue;
   CONSOLE_GREEN_COLOR = FOREGROUND_GREEN;
@@ -144,7 +144,7 @@ begin
 
     if Commands.Command = ccPars then begin
 
-      Pars := TParser.Create;
+      Pars := TParser.Create(Commands.Exceptions);
       if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
       Pars.ParsFile(Commands.InputFile);
 

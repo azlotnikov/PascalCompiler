@@ -1,0 +1,26 @@
+lcReservedWord      	1	1	var
+lcIdentificator     	1	4	s
+lcSeparator         	1	6	:
+lcIdentificator     	1	7	String
+lcOperation         	1	13	=
+lcString            	1	15	my string
+lcSeparator         	1	27	;
+lcIdentificator     	2	1	c
+lcSeparator         	2	2	:
+lcIdentificator     	2	3	Char
+lcSeparator         	2	7	;
+lcIdentificator     	3	1	s
+lcOperation         	3	2	:=
+lcChar              	3	5	'
+lcSeparator         	3	10	;
+lcIdentificator     	4	1	s
+lcOperation         	4	2	:=
+lcString            	4	5	this is kavichka =>'<=
+lcSeparator         	4	30	;
+lcIdentificator     	5	1	c
+lcOperation         	5	2	:=
+lcChar              	5	5	0
+lcSeparator         	5	9	;
+lcIdentificator     	6	1	c
+lcOperation         	6	2	:=
+lcChar              	6	4	#67

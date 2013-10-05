@@ -26,7 +26,7 @@ implementation
 const
   EXCEPTION_NO_LEXEM_AFTER = 'No lexem after';
   EXCEPTION_NO_CLOSING_BRACKET = 'No closing bracket after';
-  EXCEPTION_UNSUPPORTED_LEXEM = 'This Lexem is unsupported. Yet';
+  EXCEPTION_UNSUPPORTED_LEXEM = 'This Lexem is unsupported';
 
   { TParser }
 
@@ -44,14 +44,11 @@ begin
         if (Lexem.ValueSeparator = '(') then begin
           if RScan.Next then Result := ParseExpression
           else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_LEXEM_AFTER, RScan.CurLexem);
-          if RScan.Next then begin
             if (RScan.CurLexem.ValueSeparator <> ')') and RExceptions then
                 Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_CLOSING_BRACKET, RScan.CurLexem);
-          end
-          else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_NO_LEXEM_AFTER, RScan.CurLexem);
-        end;
+        end else Raise TSyntaxException.Create(ClassName, EXCEPTION_UNSUPPORTED_LEXEM, RScan.CurLexem);
       end;
-    lcError:;
+    lcError: exit(ParseFactor);
   else if (RExceptions) then Raise TSyntaxException.Create(ClassName, EXCEPTION_UNSUPPORTED_LEXEM, RScan.CurLexem);
   end;
   RScan.Next;

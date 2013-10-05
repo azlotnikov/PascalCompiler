@@ -118,10 +118,11 @@ var
   i: Integer;
 begin
   if Length(S) = 0 then Exit(false);
+  S := AnsiUpperCase(S);
   Result := true;
-  if not(S[1] in ['A' .. 'Z', 'a' .. 'z']) or (IsOperation(S)) then Exit(false);
+  if not(S[1] in ['A' .. 'Z', '_']) or (IsOperation(S)) then Exit(false);
   for i := 2 to Length(S) do
-    if not(S[i] in ['0' .. '9', 'A' .. 'Z', 'a' .. 'z']) then Exit(false);
+    if not(S[i] in ['0' .. '9', 'A' .. 'Z', '_']) then Exit(false);
 end;
 
 function TScanner.IsOperation(S: String): Boolean;
@@ -303,7 +304,7 @@ begin
       AssignLex(lcError, i, j);
       Exit;
     end;
-    if RCurLexem.ValueStr <> '' then begin
+    if (RCurLexem.ValueStr <> '') and (State <> ssInComment) then begin
       DoChecks(i, j);
       RReadNextChar := true;
       Exit;
@@ -311,13 +312,13 @@ begin
     while not EOln(RFile) do begin
       if RReadNextChar then read(RFile, RCurChar);
       RReadNextChar := true;
-      if (RCurChar = '''') and not(State in [ssInString, ssInStringQuote]) and (RCurLexem.ValueStr <> '') then begin
+      if (RCurChar = '''') and not(State in [ssInString, ssInStringQuote, ssInComment]) and (RCurLexem.ValueStr <> '') then begin
         DoChecks(i, j);
         RReadNextChar := false;
         Exit;
       end;
 
-      if (RCurChar = '{') and (State <> ssInComment) then begin
+      if (RCurChar = '{') and not(State in [ssInComment, ssInString]) then begin
         PreviousState := State;
         State := ssInComment;
         Inc(j);
@@ -399,7 +400,8 @@ begin
         else State := ssNone;
       end;
 
-      if not(RCurChar in RSkipSymbols) then RCurLexem.ValueStr := RCurLexem.ValueStr + RCurChar;
+      if not(RCurChar in RSkipSymbols) or (State in [ssInString, ssInStringQuote]) then
+        RCurLexem.ValueStr := RCurLexem.ValueStr + RCurChar;
 
       Inc(j);
     end;
