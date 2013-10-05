@@ -138,7 +138,7 @@ begin
           Scan.CurLexem.Col, Scan.CurLexem.PrintLexem]));
       end;
 
-      Scan.Free;
+      Scan.Free; { NOTE: 1}
       halt;
     end;
 
