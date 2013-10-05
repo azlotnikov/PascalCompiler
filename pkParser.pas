@@ -73,7 +73,7 @@ end;
 constructor TParser.Create(AExceptions: Boolean = False);
 begin
   RExceptions := AExceptions;
-  RScan := TScanner.Create(RExceptions);
+  RScan := TScanner.Create(RExceptions);   // NOTE: test
 end;
 
 procedure TParser.ParsFile(FileName: String);
@@ -82,7 +82,7 @@ begin
   RScan.Next;
   RRoot := ParseExpression;
   RRoot.Print(0);
-  //TODO: My first task
+  // TODO: My first task
 end;
 
 function TParser.ParseExpression: TNode;
