@@ -135,7 +135,7 @@ begin
       if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
       while Scan.Next do begin
         Writeln(Format('%-20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
-          Scan.CurLexem.Col, Scan.CurLexem.ValueStr]));
+          Scan.CurLexem.Col, Scan.CurLexem.PrintLexem]));
       end;
 
       Scan.Free;
@@ -156,8 +156,7 @@ begin
 
   except
     on E: Exception do begin
-      AssignFile(output, '');
-      Writeln(E.Message);
+      Writeln(ErrOutput, E.Message);
     end;
   end;
 

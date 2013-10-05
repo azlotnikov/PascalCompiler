@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.746,D:\ProjectsGit\PascalCompiler\PascalCompiler\pkScanner.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\pkScaner.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.699,=C:\Users\root\Documents\RAD Studio\Projects\GridPaneView1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.086,C:\Users\root\Documents\RAD Studio\Projects\PasComp\compiler.dproj=C:\Users\root\Documents\RAD Studio\Projects\Project6.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.602,D:\ProjectsGit\PascalCompiler\PascalCompiler\pkTree.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.982,C:\Users\root\Documents\RAD Studio\Projects\PasComp\pkScaner.pas=C:\Users\root\Documents\RAD Studio\Projects\PasComp\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.142,=C:\Users\root\Documents\RAD Studio\Projects\SplitPaneView1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.833,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.565,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.288,=C:\Users\root\Documents\RAD Studio\Projects\PasComp\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.982,C:\Users\root\Documents\RAD Studio\Projects\PasComp\Unit1.pas=C:\Users\root\Documents\RAD Studio\Projects\PasComp\pkScaner.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.699,=C:\Users\root\Documents\RAD Studio\Projects\GridPaneView1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.881,=C:\Users\root\Documents\RAD Studio\Projects\Unit6.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.027,D:\ProjectsGit\PascalCompiler\PascalCompiler\pkParser.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.142,=C:\Users\root\Documents\RAD Studio\Projects\SplitPaneView1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.746,D:\ProjectsGit\PascalCompiler\PascalCompiler\pkScaner.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\pkScanner.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.602,D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\pkTree.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.086,C:\Users\root\Documents\RAD Studio\Projects\Project6.dproj=C:\Users\root\Documents\RAD Studio\Projects\PasComp\compiler.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.833,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.027,D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas=D:\ProjectsGit\PascalCompiler\PascalCompiler\pkParser.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.565,=D:\ProjectsGit\PascalCompiler\PascalCompiler\Unit1.pas</Transaction>
   </Transactions>
 </BorlandProject>
