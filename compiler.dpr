@@ -43,6 +43,7 @@ var
 
 procedure PrintInfo;
 begin
+  Writeln('PascalCompiler v' + COMPILER_VERSION);
   Writeln('Available Commands:');
   Write('Scan file: ':20);
   Writeln('/S InputFile [OutputFile]');
@@ -82,8 +83,6 @@ end;
 begin
   try
     SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
-
-    Writeln('PascalCompiler v' + COMPILER_VERSION);
 
     ReadCommands;
 
