@@ -13,10 +13,6 @@ uses
 const
   COMPILER_VERSION = '0.4';
 
-  CONSOLE_DEFAULT_COLOR = FOREGROUND_GREEN + FOREGROUND_Blue;
-  CONSOLE_GREEN_COLOR = FOREGROUND_GREEN;
-  CONSOLE_PINK_COLOR = FOREGROUND_RED + FOREGROUND_Blue;
-
 type
   TCompilerCommand = (ccNone, ccScan, ccPars, ccCompile);
 
@@ -45,52 +41,17 @@ var
     'lcString'
   );
 
-  FileOut: TextFile;
-
-procedure SetConsoleColor(NewColor: Integer);
-begin
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), NewColor);
-end;
-
 procedure PrintInfo;
 begin
-  SetConsoleColor(CONSOLE_DEFAULT_COLOR);
-  Writeln('PascalCompiler v' + COMPILER_VERSION);
-  Writeln;
   Writeln('Available Commands:');
-  Writeln;
-  SetConsoleColor(CONSOLE_PINK_COLOR);
   Write('Scan file: ':20);
-  SetConsoleColor(CONSOLE_GREEN_COLOR);
   Writeln('/S InputFile [OutputFile]');
-  SetConsoleColor(CONSOLE_PINK_COLOR);
   Write('Pars file: ':20);
-  SetConsoleColor(CONSOLE_GREEN_COLOR);
   Writeln('/P InputFile [OutputFile]');
-  SetConsoleColor(CONSOLE_PINK_COLOR);
   Write('Compile file: ':20);
-  SetConsoleColor(CONSOLE_GREEN_COLOR);
   Writeln('/C InputFile');
-  SetConsoleColor(CONSOLE_PINK_COLOR);
   Write('EnableExceptions: ':20);
-  SetConsoleColor(CONSOLE_GREEN_COLOR);
   Writeln('/E');
-  SetConsoleColor(CONSOLE_DEFAULT_COLOR);
-end;
-
-procedure CleanSrc;
-var
-  Count, Res: Cardinal;
-  BuffInfo: TConsoleScreenBufferInfo;
-  FOutHandle: THandle;
-begin
-  FOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
-  GetConsoleScreenBufferInfo(FOutHandle, BuffInfo);
-  with BuffInfo do Count := dwSize.X * dwSize.Y;
-  BuffInfo.dwCursorPosition.X := 0;
-  BuffInfo.dwCursorPosition.Y := 0;
-  FillConsoleOutputCharacter(FOutHandle, #0, Count, BuffInfo.dwCursorPosition, Res);
-  SetConsoleCursorPosition(FOutHandle, BuffInfo.dwCursorPosition);
 end;
 
 procedure ReadCommands;
@@ -105,10 +66,11 @@ begin
     for i := 1 to ParamCount do begin
       s := AnsiUpperCase(ParamStr(i));
       if (s[1] = '/') then begin
-        if s = '/S' then Command := ccScan;
-        if s = '/P' then Command := ccPars;
-        if s = '/C' then Command := ccCompile;
-        if s = '/E' then Exceptions := True;
+        if s = '/S' then Command := ccScan
+        else if s = '/P' then Command := ccPars
+        else if s = '/C' then Command := ccCompile
+        else if s = '/E' then Exceptions := True
+        else Writeln('Unknown command: ' + ParamStr(i));
       end else begin
         if InputFile = '' then InputFile := ParamStr(i)
         else if OutPutFile = '' then OutPutFile := ParamStr(i);
@@ -120,6 +82,8 @@ end;
 begin
   try
     SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
+
+    Writeln('PascalCompiler v' + COMPILER_VERSION);
 
     ReadCommands;
 
@@ -138,7 +102,7 @@ begin
           Scan.CurLexem.Col, Scan.CurLexem.PrintLexem]));
       end;
 
-      Scan.Free; { NOTE: 1}
+      Scan.Free; { NOTE: 1 }
       halt;
     end;
 
@@ -155,9 +119,7 @@ begin
     PrintInfo;
 
   except
-    on E: Exception do begin
-      Writeln(ErrOutput, E.Message);
-    end;
+    on E: Exception do Writeln(ErrOutput, E.Message);
   end;
 
 end.

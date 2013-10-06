@@ -1,0 +1,55 @@
+<statement>
+    ::= <labeled-statement>
+    ::= <unlabeled-statement>
+    ::= <empty>
+<assignment-statement>
+    ::= <variable-reference> ':=' <expression>
+    ::= <function-name> ':=' <expression>
+<case-statement>
+    ::= 'CASE' <expression> 'OF' <case-clause-list> 'END'
+    ::= 'CASE' <expression> 'OF' <case-clause-list> ';' <default-case-clause> 'END'
+<compound-statement>
+    ::= 'BEGIN' <statement-list> 'END'
+<for-statement>
+    ::= <for-to-statement>
+    ::= <for-downto-statement>
+<goto-statement>
+    ::= 'goto' <label>
+<if-statement>
+    ::= 'IF' <expression> 'THEN' <statement>
+<if-else-statement>
+    ::= 'IF' <expression> 'THEN' <statement> 'ELSE' <statement>
+<iteration-statement>
+    ::= <for-statement>
+    ::= <repeat-statement>
+    ::= <while-statement>
+<labeled-statement>
+    ::= <label> ':' <unlabeled-statement>
+<procedure-statement>
+    ::= 'PROCEDURE' <procedure-name>
+    ::= 'PROCEDURE' <procedure-name> '(' <formal-argument-list> '}'
+<program-statement>
+    ::= 'PROGRAM' <program-name>
+    ::= 'PROGRAM' <program-name> '(' <identifier-list> ')'
+<repeat-statement>
+    ::= 'REPEAT' <statement-list> 'UNTIL' <expression>
+<selection-statement>
+    ::= <if-statement>
+    ::= <if-else-statement>
+    ::= <case-statement>
+<simple-statement>
+    ::= <assignment-statement>
+    ::= <procedure-statement>
+    ::= <goto-statement>
+<structured-statement>
+    ::= <compound-statement>
+    ::= <iteration-statement>
+    ::= <selection-statement>
+    ::= <with-statement>
+<unlabeled-statement>
+    ::= <simple-statement>
+    ::= <structured-statement>
+<while-statement>
+    ::= 'WHILE' <expression> 'DO' <statement>
+<with-statement>
+    ::= 'with' <record-variable-reference-list> 'do' <statement>

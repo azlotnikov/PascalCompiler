@@ -12,11 +12,11 @@ type
   private
     RExceptions: Boolean;
     RScan: TScanner;
-    function ParseTerm: TNode;
-    function ParseFactor: TNode;
+    function ParseTerm(Priority: Integer = 0): TNode;
+    function ParseFactor(Priority: Integer = 0): TNode;
   public
     RRoot: TNode;
-    function ParseExpression: TNode;
+    function ParseExpression(Priority: Integer = 0): TNode;
     procedure ParsFile(FileName: String);
     constructor Create(AExceptions: Boolean = False);
   end;
@@ -25,12 +25,12 @@ implementation
 
 const
   EXCEPTION_NO_LEXEM_AFTER = 'No lexem after';
-  EXCEPTION_NO_CLOSING_BRACKET = 'No closing bracket after';
+  EXCEPTION_NO_CLOSING_BRACKET = 'CLosing bracket expexted';
   EXCEPTION_UNSUPPORTED_LEXEM = 'This Lexem is unsupported';
 
   { TParser }
 
-function TParser.ParseFactor: TNode;
+function TParser.ParseFactor(Priority: Integer = 0): TNode;
 var
   Lexem: TLexem;
 begin
@@ -56,7 +56,7 @@ begin
   RScan.Next;
 end;
 
-function TParser.ParseTerm: TNode;
+function TParser.ParseTerm(Priority: Integer = 0): TNode;
 var
   Left: TNode;
   Lexem: TLexem;
@@ -73,7 +73,7 @@ end;
 constructor TParser.Create(AExceptions: Boolean = False);
 begin
   RExceptions := AExceptions;
-  RScan := TScanner.Create(RExceptions);   // NOTE: test
+  RScan := TScanner.Create(RExceptions); // NOTE: test
 end;
 
 procedure TParser.ParsFile(FileName: String);
@@ -85,7 +85,7 @@ begin
   // TODO: My first task
 end;
 
-function TParser.ParseExpression: TNode;
+function TParser.ParseExpression(Priority: Integer = 0): TNode;
 var
   Left: TNode;
   Lexem: TLexem;
