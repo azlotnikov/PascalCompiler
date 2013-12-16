@@ -1,1 +1,0 @@
-for /L %%i in (1,1,5) do compiler /p "ptest%%i.pas" "ptest%%i.pars"

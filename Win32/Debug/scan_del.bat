@@ -1,1 +1,1 @@
-del /q *.scan
+del /q Tests/Scanner/*.scan

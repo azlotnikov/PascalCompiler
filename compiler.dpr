@@ -1,124 +1,141 @@
-﻿program compiler;
+﻿PROGRAM compiler;
 
 {$APPTYPE CONSOLE}
 {$R *.res}
 
-uses
+USES
   System.SysUtils,
   Winapi.Windows,
-  pkScanner in 'pkScanner.pas',
-  pkParser in 'pkParser.pas',
-  pkTree in 'pkTree.pas';
+  pkScanner IN 'pkScanner.pas',
+  pkParser IN 'pkParser.pas',
+  pkTree IN 'pkTree.pas';
 
-const
+CONST
   COMPILER_VERSION = '0.4';
 
-type
+TYPE
   TCompilerCommand = (ccNone, ccScan, ccPars, ccCompile);
 
-  TCommands = record
+  TCommands = RECORD
     Exceptions: Boolean;
-    InputFile: String;
-    OutPutFile: String;
+    InputFile: STRING;
+    OutPutFile: STRING;
     Command: TCompilerCommand;
-  end;
+  END;
 
-var
-  Scan: TScanner;
-  Pars: TParser;
-  Commands: TCommands;
-  LexemDefinitions: array [0 .. 10] of string = (
+VAR
+  Scan            : TScanner;
+  Pars            : TParser;
+  Commands        : TCommands;
+  LexemDefinitions: ARRAY [0 .. 10] OF STRING = (
     'lcUnknown',
     'lcReservedWord',
     'lcIdentificator',
-    'lcConstant',
     'lcInteger',
     'lcFloat',
     'lcError',
     'lcSeparator',
     'lcOperation',
     'lcChar',
-    'lcString'
+    'lcString',
+    'lcLabel'
   );
 
-procedure PrintInfo;
-begin
+PROCEDURE PrintInfo;
+BEGIN
   Writeln('PascalCompiler v' + COMPILER_VERSION);
   Writeln('Available Commands:');
-  Write('Scan file: ':20);
+  WRITE('Scan file: ':20);
   Writeln('/S InputFile [OutputFile]');
-  Write('Pars file: ':20);
+  WRITE('Pars file: ':20);
   Writeln('/P InputFile [OutputFile]');
-  Write('Compile file: ':20);
+  WRITE('Compile file: ':20);
   Writeln('/C InputFile');
-  Write('EnableExceptions: ':20);
+  WRITE('EnableExceptions: ':20);
   Writeln('/E');
-end;
+END;
 
-procedure ReadCommands;
-var
+PROCEDURE ReadCommands;
+VAR
   i: Integer;
-  s: string;
-begin
-  with Commands do begin
-    Command := ccNone;
-    InputFile := '';
+  s: STRING;
+BEGIN
+  WITH Commands DO
+  BEGIN
+    Command    := ccNone;
+    InputFile  := '';
     OutPutFile := '';
-    for i := 1 to ParamCount do begin
+    FOR i      := 1 TO ParamCount DO
+    BEGIN
       s := AnsiUpperCase(ParamStr(i));
-      if (s[1] = '/') then begin
-        if s = '/S' then Command := ccScan
-        else if s = '/P' then Command := ccPars
-        else if s = '/C' then Command := ccCompile
-        else if s = '/E' then Exceptions := True
-        else Writeln('Unknown command: ' + ParamStr(i));
-      end else begin
-        if InputFile = '' then InputFile := ParamStr(i)
-        else if OutPutFile = '' then OutPutFile := ParamStr(i);
-      end;
-    end;
-  end;
-end;
+      IF (s[1] = '/') THEN
+      BEGIN
+        IF s = '/S' THEN
+          Command := ccScan
+        ELSE IF s = '/P' THEN
+          Command := ccPars
+        ELSE IF s = '/C' THEN
+          Command := ccCompile
+        ELSE IF s = '/E' THEN
+          Exceptions := True
+        ELSE
+          Writeln('Unknown command: ' + ParamStr(i));
+      END ELSE BEGIN
+        IF InputFile = '' THEN
+          InputFile := ParamStr(i)
+        ELSE IF OutPutFile = '' THEN
+          OutPutFile := ParamStr(i);
+      END;
+    END;
+  END;
+END;
 
-begin
-  try
+BEGIN
+  TRY
     SetConsoleTitle(PChar('PascalCompiler v' + COMPILER_VERSION + ' [ https://github.com/ZRazor/PascalCompiler ]'));
 
     ReadCommands;
 
-    if (Commands.Command = ccNone) or (Commands.InputFile = '') then begin
+    IF (Commands.Command = ccNone) OR (Commands.InputFile = '') THEN
+    BEGIN
       PrintInfo;
       halt;
-    end;
+    END;
 
-    if Commands.Command = ccScan then begin
+    IF Commands.Command = ccScan THEN
+    BEGIN
 
       Scan := TScanner.Create(Commands.Exceptions);
       Scan.StartFileScan(Commands.InputFile);
-      if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
-      while Scan.Next do begin
+      IF Commands.OutPutFile <> '' THEN
+        AssignFile(output, Commands.OutPutFile);
+      WHILE Scan.Next DO
+      BEGIN
         Writeln(Format('%-20s'#9'%d'#9'%d'#9'%s', [LexemDefinitions[ord(Scan.CurLexem.Code)], Scan.CurLexem.Row,
           Scan.CurLexem.Col, Scan.CurLexem.PrintLexem]));
-      end;
+      END;
 
       Scan.Free; { NOTE: 1 }
       halt;
-    end;
+    END;
 
-    if Commands.Command = ccPars then begin
+    IF Commands.Command = ccPars THEN
+    BEGIN
 
       Pars := TParser.Create(Commands.Exceptions);
-      if Commands.OutPutFile <> '' then AssignFile(output, Commands.OutPutFile);
+      IF Commands.OutPutFile <> '' THEN
+        AssignFile(output, Commands.OutPutFile);
       Pars.ParsFile(Commands.InputFile);
 
       Pars.Free;
       halt;
-    end;
+    END;
 
     PrintInfo;
 
-  except
-    on E: Exception do Writeln(ErrOutput, E.Message);
-  end;
+  EXCEPT
+    ON E: Exception DO
+      Writeln(ErrOutput, E.Message);
+  END;
 
-end.
+END.

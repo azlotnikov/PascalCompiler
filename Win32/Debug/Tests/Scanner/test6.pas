@@ -1,5 +1,3 @@
-comment()b={some str''123}c;//123;
-c/d//comment {
 3.0{11} 123{21
 rrr
 13
